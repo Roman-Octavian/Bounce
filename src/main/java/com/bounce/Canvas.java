@@ -33,6 +33,9 @@ public class Canvas extends Application {
             stage.setTitle("Control Panel");
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.initStyle(StageStyle.UNDECORATED);
+            // Set icon
+            Image icon = new Image("file:src/main/resources/assets/icon.png");
+            stage.getIcons().add(icon);
             // Retrieve screen size
             Rectangle2D screenSize = Screen.getPrimary().getVisualBounds();
             stage.setResizable(false);
