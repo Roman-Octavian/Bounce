@@ -1,0 +1,12 @@
+#control-panel {
+    -fx-background-color: #fff;
+    -fx-border-color: #000;
+    -fx-border-radius: 8px;
+    -fx-border-style: solid;
+}
+
+#generate {
+    -fx-border-color: aqua;
+    -fx-border-style: solid;
+    -fx-border-width: 1px;
+}
