@@ -3,8 +3,14 @@ package com.bounce;
 import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
 import javafx.scene.control.ColorPicker;
+import javafx.scene.control.Slider;
+import javafx.scene.control.Spinner;
+import javafx.scene.control.TextField;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Sphere;
+
+import java.util.Objects;
+import java.util.Random;
 
 /**
  * Class responsible for generating new spheres
@@ -13,16 +19,88 @@ import javafx.scene.shape.Sphere;
  * Includes the logic behind the rudimentary physics simulation.
  */
 public class NewSphere extends Thread {
-    // Instantiate a new JavaFX sphere object with a given radius.
-    Sphere sphere = new Sphere(50);
-    /* This is the speed in pixels per frame at which the sphere moves.
-    Instead of two variables, it would make sense to use something such as a vector to store X and Y
-    since this is essentially a vector, but I can't seem to find the appropriate Java built-in collection */
-    double directionX = 10;
-    double directionY = 10;
 
     // Retrieving the ColorPicker from the Control Panel with its ID, to color the Sphere
     ColorPicker color = (ColorPicker) Bridge.getCanvasController().getCanvas().getScene().lookup("#color");
+    // Retrieving the size Slider from the Control Panel with its ID, to set the radius of the Sphere
+    Slider size = (Slider) Bridge.getCanvasController().getCanvas().getScene().lookup("#size");
+    // Retrieving the initialX TextField from the Control Panel with its ID, to set the initial position X of the Sphere
+    TextField initialX = (TextField) Bridge.getCanvasController().getCanvas().getScene().lookup("#initialX");
+    // Retrieving the initialY TextField from the Control Panel with its ID, to set the initial position Y of the Sphere
+    TextField initialY = (TextField) Bridge.getCanvasController().getCanvas().getScene().lookup("#initialY");
+    // Retrieving the X vector value from the Control Panel with its ID, to set the vector of the Sphere
+    @SuppressWarnings("unchecked")
+    Spinner<String> vectorX = (Spinner<String>) Bridge.getCanvasController().getCanvas().getScene().lookup("#initialVectorX");
+    // Retrieving the Y vector value from the Control Panel with its ID, to set the vector of the Sphere
+    @SuppressWarnings("unchecked")
+    Spinner<String> vectorY = (Spinner<String>) Bridge.getCanvasController().getCanvas().getScene().lookup("#initialVectorY");
+
+
+    // Instantiate a new JavaFX sphere object with a given radius.
+    Sphere sphere = new Sphere(size.getValue());
+
+    // Random for blank values inside the control panel
+    Random random = new Random();
+
+    /**
+     * Retrieves the values of the X,Y vector which determines the direction and speed of the sphere
+     * Retrieves the integers, if any, from the spinners inside the control panel
+     * If the "random" options are selected, then the value of the X or Y coordinate gets randomized between 1 and 10
+     * @return an array with speed and direction "X" at index 0 and "Y" at index 1
+     */
+    private int[] getInitialSpeedAndDirection() {
+        int x;
+        int y;
+        int[] result = new int[2];
+
+        if (Objects.equals(vectorX.getValue(), "Random")) {
+            x = random.nextInt(1,10);
+        } else {
+            x = Integer.parseInt(vectorX.getValue());
+        }
+
+        if (Objects.equals(vectorY.getValue(), "Random")) {
+            y = random.nextInt(1,10);
+        } else {
+            y = Integer.parseInt(vectorY.getValue());
+        }
+        result[0] = x;
+        result[1] = y;
+        return result;
+    }
+
+    /**
+     * Establish the initial position of a newly generated sphere.
+     * Uses the values inserted into the "Initial Position" "X" and "Y" fields to position the sphere object.
+     * If no values are provided, the position is randomized in accordance to the screen size.
+     * @return an array with the initial X at index 0 and Y at index 1
+     */
+    private int[] getInitialCoords() {
+        int x;
+        int y;
+        int[] result = new int[2];
+
+        if (initialX.getText().equals("")) {
+            x = random.nextInt((int) sphere.getRadius(), (int) Bridge.getCanvasController().getCanvas().getLayoutBounds().getMaxX());
+        } else {
+            x = Integer.parseInt(initialX.getText());
+        }
+
+        if (initialY.getText().equals("")) {
+            y = random.nextInt((int) sphere.getRadius(), (int) Bridge.getCanvasController().getCanvas().getLayoutBounds().getMaxY());
+        } else {
+            y = Integer.parseInt(initialY.getText());
+        }
+        result[0] = x;
+        result[1] = y;
+        return result;
+    }
+
+    /* This is the speed and direction in pixels per frame at which the sphere moves.
+    We're assigning the values from the vector to two variables for clarity down the line */
+    int[] vector = getInitialSpeedAndDirection();
+    double directionX = vector[0];
+    double directionY = vector[1];
 
     /**
      * Method to run a NewSphere thread
@@ -40,8 +118,8 @@ public class NewSphere extends Thread {
             // Add sphere to a sphere ArrayList for future manipulation
             Bridge.getCanvasController().getSphereList().add(sphere);
             // Set the initial position of the Sphere on the axis
-            sphere.setLayoutX(51);
-            sphere.setLayoutY(51);
+            sphere.setLayoutX(getInitialCoords()[0]);
+            sphere.setLayoutY(getInitialCoords()[1]);
             // Create a material to color the Sphere, and take the color from the retrieved ColorPicker above
             PhongMaterial material = new PhongMaterial();
             material.setDiffuseColor(color.getValue());
@@ -49,6 +127,10 @@ public class NewSphere extends Thread {
             // Creating a new animation and starting it. JavaFX tries to run at least at 60 FPS but frames are not guaranteed — your mileage may vary.
             AnimationTimer timer = new Animation();
             timer.start();
+            /* Set the sphere as last in the ObservableList of nodes in FX.
+            This tries to prevent spheres from visually appearing on top of the control panel.
+            Some very rare collisions under the controller have a small visual glitch where they appear for a fraction of a second, only saw it twice */
+            sphere.toBack();
         });
     }
 
@@ -154,7 +236,7 @@ public class NewSphere extends Thread {
             // dy = horizontal distance between sphere and other sphere
             double dx = otherSphereX - sphereX;
             double dy = otherSphereY - sphereY;
-            // d = distance between the centre of each sphere; Pythagoras Theorem
+            // d = distance between the centre of each sphere; Pythagoras' Theorem
             double d = Math.sqrt((dy * dy) + (dx * dx));
             // return true if the distance between the spheres is lower than their radius, false if not
             return (d <= (sphereRadius + otherSphereRadius));
@@ -174,10 +256,8 @@ public class NewSphere extends Thread {
             // dy = horizontal distance between sphere and other sphere
             double dx = otherSphereX - sphereX;
             double dy = otherSphereY - sphereY;
-            // d = distance between the centre of each sphere; Pythagoras Theorem
-            double d = Math.sqrt((dy * dy) + (dx * dx));
-            // return distance between centres
-            return d;
+            // return distance between centres with Pythagoras' Theorem
+            return Math.sqrt((dy * dy) + (dx * dx));
         }
 
         /**
@@ -196,7 +276,7 @@ public class NewSphere extends Thread {
             // dy = horizontal distance between sphere and other sphere
             double dx = otherSphereX - sphereX;
             double dy = otherSphereY - sphereY;
-            // d = distance between the center of each sphere; Pythagoras Theorem
+            // d = distance between the center of each sphere; Pythagoras' Theorem
             double d = Math.sqrt((dy * dy) + (dx * dx));
             // return overlap
             return (d - sphereRadius - otherSphereRadius) * 0.5;
