@@ -21,13 +21,18 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Sphere;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
+import javafx.scene.text.Text;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
+import java.awt.Desktop;
 
 /**
  * Controller for the canvas view
@@ -105,43 +110,132 @@ public class CanvasController implements Initializable {
         controlPanel.setId("control-panel");
         // Make individual tabs impossible to close as that functionality is detrimental here
         controlPanel.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
-
-        // Threads start
-        HBox threadsContent = new HBox();
-        threadsContent.setPrefSize(600.0,180.0);
-
-        Tab threads = new Tab();
-        threads.setText("Threads");
-        threads.setContent(threadsContent);
-
-        /* ----------------------TABS---------------------- */
-        // Info Tab
-        Tab info = new Tab();
-
-        /* ----------------------TABS---------------------- */
-
-
-
-        // Stats start
-
-
-        AnchorPane statsContent = new AnchorPane();
-        statsContent.setPrefSize(600.0,180.0);
-        statsContent.getChildren().addAll();
-
-        Tab stats = new Tab();
-        stats.setText("Stats");
-        stats.setContent(statsContent);
-
-
-        controlPanel.getTabs().addAll(info, generateNewSphereTab(), stats, threads, generateOptionsTab());
+        // Add all tabs to control panel
+        controlPanel.getTabs().addAll(generateInfoTab(), generateNewSphereTab(), generateStatsTab(), generateOptionsTab());
 
         return controlPanel;
     }
 
     /**
+     * Generate the GUI elements of the "Info" Tab.
+     * @return the "Info" Tab
+     */
+    public Tab generateInfoTab() {
+        // New tab
+        Tab info = new Tab();
+        info.setText("Info");
+        // Content container for ScrollPane
+        VBox infoContainer = new VBox();
+        infoContainer.setPrefWidth(600.0);
+        // Container for all options tab nodes
+        ScrollPane scrollPane = new ScrollPane();
+        scrollPane.setPrefSize(600.0, 180.0);
+        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        scrollPane.setContent(infoContainer);
+
+        // Sections for each row of the tab
+        HBox infoSectionA = new HBox();
+        infoSectionA.setAlignment(Pos.CENTER);
+        infoSectionA.setPrefSize(600.0, 20.0);
+
+        HBox infoSectionB = new HBox();
+        infoSectionB.getStyleClass().add("info-container");
+        infoSectionB.setAlignment(Pos.CENTER_LEFT);
+        infoSectionB.setPrefWidth(600.0);
+
+        HBox infoSectionC = new HBox();
+        infoSectionC.getStyleClass().add("info-container");
+        infoSectionC.setAlignment(Pos.CENTER_LEFT);
+        infoSectionC.setPrefWidth(600.0);
+
+        HBox infoSectionD = new HBox();
+        infoSectionD.getStyleClass().add("info-container");
+        infoSectionD.setAlignment(Pos.CENTER_LEFT);
+        infoSectionD.setPrefWidth(600.0);
+
+        HBox infoSectionE = new HBox();
+        infoSectionE.getStyleClass().add("info-container");
+        infoSectionE.setAlignment(Pos.CENTER_LEFT);
+        infoSectionE.setPrefWidth(600.0);
+
+        HBox infoSectionF = new HBox();
+        infoSectionF.getStyleClass().add("info-container");
+        infoSectionF.setAlignment(Pos.CENTER_LEFT);
+        infoSectionF.setPrefWidth(600.0);
+
+        HBox infoSectionG = new HBox();
+        infoSectionG.getStyleClass().add("info-container");
+        infoSectionG.setAlignment(Pos.CENTER_LEFT);
+        infoSectionG.setPrefWidth(600.0);
+
+        // Text elements for the tab
+        Text header = new Text("Bouncing Spheres");
+        header.setId("header");
+
+        Text description = new Text("This app facilitates (very) rudimentary multi-threaded ball physics simulations.");
+        description.setId("description");
+
+        Text howToUse = new Text("How to use:");
+        howToUse.setId("howToUse");
+
+        Text generalInformation = new Text(
+                "Press the \"H\" key to show/hide this panel. " +
+                "Set sphere size, color, position and vector in \"New Sphere\"."
+        );
+        generalInformation.wrappingWidthProperty().set(570);
+        // CSS style class
+        generalInformation.getStyleClass().add("normal-text");
+
+        Text vector = new Text(
+                    "The vector is the initial movement pattern. " +
+                    "Negative numbers designate backward movement, and positive numbers forward movement. " +
+                    "Higher values will produce a higher velocity."
+        );
+        vector.wrappingWidthProperty().set(570);
+        vector.getStyleClass().add("normal-text");
+
+        Text initialPosition = new Text(
+                        "Your display resolution is detected as " + (int) Screen.getPrimary().getVisualBounds().getMaxY() + "x" + (int) Screen.getPrimary().getVisualBounds().getMaxX() + ". " +
+                        "Generating spheres outside of those bounds will force spheres " +
+                        "to the nearest coordinate on screen."
+        );
+        initialPosition.wrappingWidthProperty().set(570);
+        initialPosition.getStyleClass().add("normal-text");
+
+        Text cText = new Text("Not enough? ");
+        cText.getStyleClass().add("normal-text");
+
+        // Contact link that should open browser
+        Hyperlink contact = new Hyperlink("Get in touch");
+        contact.getStyleClass().add("normal-text");
+        contact.setOnAction(actionEvent -> {
+            try {
+                Desktop.getDesktop().browse(new URI("https://github.com/Roman-Octavian"));
+            } catch (IOException | URISyntaxException e) {
+                e.printStackTrace();
+            }
+        });
+
+        // Add all nodes to row containers
+        infoSectionA.getChildren().add(header);
+        infoSectionB.getChildren().add(description);
+        infoSectionC.getChildren().add(howToUse);
+        infoSectionD.getChildren().add(generalInformation);
+        infoSectionE.getChildren().add(vector);
+        infoSectionF.getChildren().add(initialPosition);
+        infoSectionG.getChildren().addAll(cText, contact);
+
+        // Add all rows to ScrollPane content
+        infoContainer.getChildren().addAll(infoSectionA, infoSectionB, infoSectionC, infoSectionD, infoSectionE, infoSectionF, infoSectionG);
+        // Set content of the tab
+        info.setContent(scrollPane);
+
+        return info;
+    }
+
+    /**
      * Generate the GUI elements of the "New Sphere" Tab.
-     * Tedious. but dynamic.
+     * Tedious, but dynamic.
      * @return the "New Sphere" Tab
      */
     public Tab generateNewSphereTab() {
@@ -343,12 +437,6 @@ public class CanvasController implements Initializable {
             NewSphere sphere = new NewSphere();
             sphere.start();
             Bridge.getCanvasController().getThreadList().add(sphere);
-            /* Label threadLabel = new Label();
-            threadLabel.setStyle("-fx-font-size: 10px; -fx-font-family: Arial; -fx-background-color: #fff");
-            threadLabel.setText(sphere.getName());
-
-            threadsContent.getChildren().add(threadLabel);
-            threadList.add(sphere); */
         });
         // Add both buttons and the spacing region to the row
         sectionCButtons.getChildren().addAll(resetValues, spacingRegion, generateSphere);
@@ -364,6 +452,10 @@ public class CanvasController implements Initializable {
         /* ===================NEW SPHERE END=================== */
     }
 
+    /**
+     * Generate the GUI elements of the "Options" Tab.
+     * @return the "Options" Tab
+     */
     public Tab generateOptionsTab() {
         // New tab
         Tab options = new Tab();
@@ -388,7 +480,6 @@ public class CanvasController implements Initializable {
         optionsSectionC.setPrefSize(600.0,55.0);
 
         /* ----------------------SECTION A---------------------- */
-
         // Region to space nodes out
         Region spacingRegionA = new Region();
         spacingRegionA.setPrefSize(50.0, 55.0);
@@ -417,7 +508,6 @@ public class CanvasController implements Initializable {
         HBox.setMargin(soundLabel, new Insets(0, 0, 0, 20.0));
         HBox.setMargin(soundWarning, new Insets(0, 0, 0, 20.0));
         optionsSectionA.getChildren().addAll(spacingRegionA, soundOn, soundOff, soundLabel, soundWarning);
-
         /* ----------------------SECTION A---------------------- */
 
         /* ----------------------SECTION B---------------------- */
@@ -445,7 +535,9 @@ public class CanvasController implements Initializable {
                 for (AnimationTimer animationTimer : animationList) {
                     animationTimer.stop();
                 }
-                // Iterate through all Sphere threads; interrupt all of them (stop() is deprecated)
+                /* Iterate through Sphere threads; interrupt all of them.
+                stop() is deprecated, but interrupting them should free up resources
+                once the garbage collector gets to it */
                 for (Thread thread : threadList) {
                     thread.interrupt();
                 }
@@ -479,7 +571,7 @@ public class CanvasController implements Initializable {
         exit.setPrefWidth(100.0);
         exit.setOnAction(actionEvent -> {
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "Terminating Application. Proceed?", ButtonType.YES, ButtonType.NO);
-            alert.setHeaderText("Warning!");
+            alert.setHeaderText("Confirmation:");
             alert.setTitle("Bouncing Spheres");
             Stage alertStage = (Stage) alert.getDialogPane().getScene().getWindow();
             alertStage.getIcons().add(new Image("file:src/main/resources/assets/icon.png"));
@@ -496,7 +588,6 @@ public class CanvasController implements Initializable {
         HBox.setMargin(exitLabel, new Insets(0, 0, 0, 20.0));
 
         optionsSectionC.getChildren().addAll(spacingRegionC, exit, exitLabel);
-
         /* ----------------------SECTION C---------------------- */
 
         optionsContainer.getChildren().addAll(optionsSectionA, optionsSectionB, optionsSectionC);
@@ -504,6 +595,20 @@ public class CanvasController implements Initializable {
 
         return options;
     }
+
+    public Tab generateStatsTab() {
+        Tab stats = new Tab();
+        stats.setText("Stats");
+
+        AnchorPane statsContent = new AnchorPane();
+        statsContent.setPrefSize(600.0,180.0);
+        statsContent.getChildren().addAll();
+
+        stats.setContent(statsContent);
+
+        return stats;
+    }
+
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {

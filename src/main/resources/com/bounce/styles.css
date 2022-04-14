@@ -1,3 +1,25 @@
+#header {
+    -fx-font-family: Monospaced;
+    -fx-font-size: 30px;
+}
+
+#description {
+    -fx-font-size: 16px;
+}
+
+#howToUse {
+    -fx-font-family: monospace;
+    -fx-font-size: 20px;
+}
+
+.info-container {
+    -fx-padding: 10px;
+}
+
+.normal-text {
+    -fx-font-size: 16px;
+}
+
 .tab-pane .tab-header-area .tab-header-background {
     -fx-opacity: 0;
 }
