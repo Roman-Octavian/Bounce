@@ -1,14 +1,17 @@
 package com.bounce;
 
+import javafx.animation.AnimationTimer;
 import javafx.animation.TranslateTransition;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
@@ -19,6 +22,7 @@ import javafx.scene.shape.Sphere;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Screen;
+import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import java.net.URL;
@@ -36,8 +40,10 @@ public class CanvasController implements Initializable {
     private TranslateTransition controlPanelInvisible;
     private boolean controlPanelToggle = false;
 
+    // Storing spheres, threads and animations in ArrayLists for manipulation down the line
     ArrayList<Sphere> sphereList = new ArrayList<>();
     ArrayList<Thread> threadList = new ArrayList<>();
+    ArrayList<AnimationTimer> animationList = new ArrayList<>();
 
     // Getters to use in conjunction with the "Bridge" class
     public AnchorPane getCanvas() {
@@ -50,6 +56,10 @@ public class CanvasController implements Initializable {
 
     public ArrayList<Thread> getThreadList() {
         return threadList;
+    }
+
+    public ArrayList<AnimationTimer> getAnimationList() {
+        return animationList;
     }
 
     /**
@@ -113,37 +123,18 @@ public class CanvasController implements Initializable {
 
 
         // Stats start
-        Button exit = new Button();
-        exit.setText("Exit");
-        exit.setMnemonicParsing(false);
-        exit.setId("exit");
-        exit.setOnAction(actionEvent -> Platform.exit());
 
-        Button clear = new Button();
-        clear.setText("Clear");
-        clear.setMnemonicParsing(false);
-        clear.setId("clear");
-        exit.setLayoutX(50.0);
-        exit.setLayoutY(50.0);
-        clear.setOnAction(actionEvent -> {
-            for (Sphere sphere : sphereList) {
-                canvas.getChildren().remove(sphere);
-            }
-            for (Thread thread : threadList) {
-                thread.interrupt();
-            }
-        });
 
         AnchorPane statsContent = new AnchorPane();
         statsContent.setPrefSize(600.0,180.0);
-        statsContent.getChildren().addAll(exit, clear);
+        statsContent.getChildren().addAll();
 
         Tab stats = new Tab();
         stats.setText("Stats");
         stats.setContent(statsContent);
 
 
-        controlPanel.getTabs().addAll(info, generateNewSphereTab(), stats, threads);
+        controlPanel.getTabs().addAll(info, generateNewSphereTab(), stats, threads, generateOptionsTab());
 
         return controlPanel;
     }
@@ -266,7 +257,7 @@ public class CanvasController implements Initializable {
         // List of values to be stored inside Spinner nodes for Speed and Direction vector
         ObservableList<String> values = FXCollections.observableArrayList(
                 "-10", "-9", "-8", "-7", "-6", "-5", "-4", "-3", "-2", "-1",
-                "0", "Random",
+                "Random", "0",
                 "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"
         );
         // Spinner for X coordinate
@@ -351,6 +342,7 @@ public class CanvasController implements Initializable {
         generateSphere.setOnAction(actionEvent -> {
             NewSphere sphere = new NewSphere();
             sphere.start();
+            Bridge.getCanvasController().getThreadList().add(sphere);
             /* Label threadLabel = new Label();
             threadLabel.setStyle("-fx-font-size: 10px; -fx-font-family: Arial; -fx-background-color: #fff");
             threadLabel.setText(sphere.getName());
@@ -370,6 +362,147 @@ public class CanvasController implements Initializable {
         newSphere.setContent(newSphereContainer);
         return newSphere;
         /* ===================NEW SPHERE END=================== */
+    }
+
+    public Tab generateOptionsTab() {
+        // New tab
+        Tab options = new Tab();
+        options.setText("Options");
+        // Container for all options tab nodes
+        VBox optionsContainer = new VBox();
+        optionsContainer.setPrefSize(600.0, 180.0);
+
+        // First row of the container
+        HBox optionsSectionA = new HBox();
+        optionsSectionA.setAlignment(Pos.CENTER_LEFT);
+        optionsSectionA.setPrefSize(600.0, 60.0);
+
+        // Second row of the container
+        HBox optionsSectionB = new HBox();
+        optionsSectionB.setAlignment(Pos.CENTER_LEFT);
+        optionsSectionB.setPrefSize(600.0,55.0);
+
+        // Third row of the container
+        HBox optionsSectionC = new HBox();
+        optionsSectionC.setAlignment(Pos.CENTER_LEFT);
+        optionsSectionC.setPrefSize(600.0,55.0);
+
+        /* ----------------------SECTION A---------------------- */
+
+        // Region to space nodes out
+        Region spacingRegionA = new Region();
+        spacingRegionA.setPrefSize(50.0, 55.0);
+
+        // Toggle buttons to turn sound on or off. Off by default because FX MediaPlayer is very laggy.
+        ToggleGroup toggleGroup = new ToggleGroup();
+        ToggleButton soundOn = new ToggleButton();
+        soundOn.setText("ON");
+        soundOn.setId("soundOn");
+        soundOn.setPrefWidth(50.0);
+        soundOn.setMnemonicParsing(false);
+        ToggleButton soundOff = new ToggleButton();
+        soundOff.setText("OFF");
+        soundOff.setPrefWidth(50.0);
+        soundOff.setMnemonicParsing(false);
+        toggleGroup.getToggles().addAll(soundOn, soundOff);
+        toggleGroup.selectToggle(soundOff);
+
+        // Label for toggle buttons
+        Label soundLabel = new Label();
+        soundLabel.setText("Sound");
+        // Warning label for toggle buttons
+        Label soundWarning = new Label();
+        soundWarning.setText("Use with caution. Could be laggy and/or loud!");
+
+        HBox.setMargin(soundLabel, new Insets(0, 0, 0, 20.0));
+        HBox.setMargin(soundWarning, new Insets(0, 0, 0, 20.0));
+        optionsSectionA.getChildren().addAll(spacingRegionA, soundOn, soundOff, soundLabel, soundWarning);
+
+        /* ----------------------SECTION A---------------------- */
+
+        /* ----------------------SECTION B---------------------- */
+        // Region to space nodes out
+        Region spacingRegionB = new Region();
+        spacingRegionB.setPrefSize(50.0, 55.0);
+
+        // Remove all Spheres Button
+        Button clear = new Button();
+        clear.setText("Clear Spheres");
+        clear.setPrefWidth(100.0);
+        clear.setMnemonicParsing(false);
+        clear.setId("clear");
+        clear.setOnAction(actionEvent -> {
+
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "This action cannot be undone. Proceed?", ButtonType.YES, ButtonType.NO);
+            alert.setHeaderText("Warning!");
+            alert.setTitle("Canvas Erasure");
+            Stage alertStage = (Stage) alert.getDialogPane().getScene().getWindow();
+            alertStage.getIcons().add(new Image("file:src/main/resources/assets/icon.png"));
+            alert.showAndWait();
+
+            if (alert.getResult() == ButtonType.YES) {
+                // Iterate through all animations; stop all of them
+                for (AnimationTimer animationTimer : animationList) {
+                    animationTimer.stop();
+                }
+                // Iterate through all Sphere threads; interrupt all of them (stop() is deprecated)
+                for (Thread thread : threadList) {
+                    thread.interrupt();
+                }
+                // Remove all instances of "Sphere" nodes from the canvas
+                canvas.getChildren().removeIf(node -> node instanceof Sphere);
+                // Clear all the ArrayLists
+                threadList.clear();
+                animationList.clear();
+                sphereList.clear();
+            }
+        });
+
+        Label removeLabel = new Label();
+        removeLabel.setText("Remove all the spheres");
+
+        HBox.setMargin(removeLabel, new Insets(0, 0, 0, 20.0));
+
+        optionsSectionB.getChildren().addAll(spacingRegionB, clear, removeLabel);
+        /* ----------------------SECTION B---------------------- */
+
+        /* ----------------------SECTION C---------------------- */
+        // Region to space nodes out
+        Region spacingRegionC = new Region();
+        spacingRegionC.setPrefSize(50.0, 55.0);
+
+        // Terminate app Button. Needed since the app does not have the default ones available
+        Button exit = new Button();
+        exit.setText("Exit");
+        exit.setMnemonicParsing(false);
+        exit.setId("exit");
+        exit.setPrefWidth(100.0);
+        exit.setOnAction(actionEvent -> {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "Terminating Application. Proceed?", ButtonType.YES, ButtonType.NO);
+            alert.setHeaderText("Warning!");
+            alert.setTitle("Bouncing Spheres");
+            Stage alertStage = (Stage) alert.getDialogPane().getScene().getWindow();
+            alertStage.getIcons().add(new Image("file:src/main/resources/assets/icon.png"));
+            alert.showAndWait();
+
+            if (alert.getResult() == ButtonType.YES) {
+                Platform.exit();
+            }
+        });
+
+        Label exitLabel = new Label();
+        exitLabel.setText("Terminate the Application");
+
+        HBox.setMargin(exitLabel, new Insets(0, 0, 0, 20.0));
+
+        optionsSectionC.getChildren().addAll(spacingRegionC, exit, exitLabel);
+
+        /* ----------------------SECTION C---------------------- */
+
+        optionsContainer.getChildren().addAll(optionsSectionA, optionsSectionB, optionsSectionC);
+        options.setContent(optionsContainer);
+
+        return options;
     }
 
     @Override

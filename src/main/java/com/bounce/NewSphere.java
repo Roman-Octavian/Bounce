@@ -2,12 +2,12 @@ package com.bounce;
 
 import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
-import javafx.scene.control.ColorPicker;
-import javafx.scene.control.Slider;
-import javafx.scene.control.Spinner;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Sphere;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
+import java.io.File;
 
 import java.util.Objects;
 import java.util.Random;
@@ -34,6 +34,8 @@ public class NewSphere extends Thread {
     // Retrieving the Y vector value from the Control Panel with its ID, to set the vector of the Sphere
     @SuppressWarnings("unchecked")
     Spinner<String> vectorY = (Spinner<String>) Bridge.getCanvasController().getCanvas().getScene().lookup("#initialVectorY");
+    // Retrieving the initialY TextField from the Control Panel with its ID, to set the initial position Y of the Sphere
+    ToggleButton soundOn = (ToggleButton) Bridge.getCanvasController().getCanvas().getScene().lookup("#soundOn");
 
 
     // Instantiate a new JavaFX sphere object with a given radius.
@@ -44,7 +46,7 @@ public class NewSphere extends Thread {
 
     /**
      * Retrieves the values of the X,Y vector which determines the direction and speed of the sphere
-     * Retrieves the integers, if any, from the spinners inside the control panel
+     * Values are taken as integers, if any, from the spinners inside the control panel
      * If the "random" options are selected, then the value of the X or Y coordinate gets randomized between 1 and 10
      * @return an array with speed and direction "X" at index 0 and "Y" at index 1
      */
@@ -107,9 +109,8 @@ public class NewSphere extends Thread {
      */
     public void run() {
         /* Platform.runLater is necessary to use multi-threading in JavaFX. The framework does not normally allow direct Node
-        manipulation on another thread that is not the one built into JavaFX. The threads must somehow "interact" with the JavaFX thread.
-        Not using this when trying to run a new Thread results in:
-        'Exception in thread "Thread-3" java.lang.IllegalStateException: Not on FX application thread;'
+        manipulation on another thread that is not the one built into and designated for JavaFX. The threads must somehow "interact" with the JavaFX thread.
+        Not using this when trying to run a new Thread results in: 'Exception in thread "Thread-3" java.lang.IllegalStateException: Not on FX application thread;'
         Thread-3 would be where we create the first Sphere. It starts at three because the other threads are being used by Java and FX.
         I was unable to find a workaround for Platform.runLater() */
         Platform.runLater(() -> {
@@ -127,6 +128,7 @@ public class NewSphere extends Thread {
             // Creating a new animation and starting it. JavaFX tries to run at least at 60 FPS but frames are not guaranteed — your mileage may vary.
             AnimationTimer timer = new Animation();
             timer.start();
+            Bridge.getCanvasController().getAnimationList().add(timer);
             /* Set the sphere as last in the ObservableList of nodes in FX.
             This tries to prevent spheres from visually appearing on top of the control panel.
             Some very rare collisions under the controller have a small visual glitch where they appear for a fraction of a second, only saw it twice */
@@ -158,13 +160,31 @@ public class NewSphere extends Thread {
             boolean lowerEdge = sphere.getLayoutY() >= (Bridge.getCanvasController().getCanvas().getLayoutBounds().getMaxY() - sphere.getRadius());
             boolean upperEdge = sphere.getLayoutY() <= (Bridge.getCanvasController().getCanvas().getLayoutBounds().getMinY() + sphere.getRadius());
 
+
+
             /* Invert the direction of the sphere if any of the bounds is being touched.
             Creates a "bouncing" effect */
             if (leftEdge || rightEdge) {
                 directionX *= -1;
+                // Play sound on impact. Off by default
+                if (soundOn.isSelected()) {
+                    // Sound for wall collision. Off by default, since the FX MediaPlayer is very bloated and drastically drops FPS
+                    // Weird, but after wrapping everything in "if" statements the performance has vastly improved (???)
+                    // Maybe I was loading the audios every frame * the number of balls by mistake
+                    Media sound = new Media(new File("src/main/resources/assets/wall-collision.wav").toURI().toString());
+                    MediaPlayer mediaPlayer = new MediaPlayer(sound);
+                    mediaPlayer.play();
+                }
             }
             if (upperEdge || lowerEdge) {
                 directionY *= -1;
+                // Play sound on impact. Off by default
+                if (soundOn.isSelected()) {
+                    // Duplicated to wrap within "if" statement, this way it won't bother loading the media file if sound is off
+                    Media sound = new Media(new File("src/main/resources/assets/wall-collision.wav").toURI().toString());
+                    MediaPlayer mediaPlayer = new MediaPlayer(sound);
+                    mediaPlayer.play();
+                }
             }
 
             // If multiple spheres get into contact, prevent overlap and (hopefully) cause them to bounce
@@ -215,6 +235,12 @@ public class NewSphere extends Thread {
                         // Finally, invert the direction vector to create a bounce effect
                         directionX *= -1;
                         directionY *= -1;
+                        // Play sound on impact. Off by default
+                        if (soundOn.isSelected()) {
+                            Media sound = new Media(new File("src/main/resources/assets/sphere-collision.wav").toURI().toString());
+                            MediaPlayer mediaPlayer = new MediaPlayer(sound);
+                            mediaPlayer.play();
+                        }
                     }
                 }
             }
