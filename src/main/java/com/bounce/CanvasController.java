@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
 import java.awt.Desktop;
@@ -44,6 +45,7 @@ public class CanvasController implements Initializable {
     private TranslateTransition controlPanelVisible;
     private TranslateTransition controlPanelInvisible;
     private boolean controlPanelToggle = false;
+    private static final Connection connection = Database.getConnection();
 
     // Storing spheres, threads and animations in ArrayLists for manipulation down the line
     ArrayList<Sphere> sphereList = new ArrayList<>();
@@ -437,6 +439,14 @@ public class CanvasController implements Initializable {
             NewSphere sphere = new NewSphere();
             sphere.start();
             Bridge.getCanvasController().getThreadList().add(sphere);
+
+            /* Increment the global sphere generation count by one in the Heroku database
+            Separate thread because the free plan is rather slow.
+            Having the queries run on the main Thread creates a delay of 1-2 seconds from "Generate Sphere" button press to actual generation occurring.
+            Sideloading the queries onto another Thread solves this issue; No need to try to stop this Thread, garbage collector will take care of it. */
+            if (connection != null) {
+                new Thread(() -> Database.addToSphereCount(connection)).start();
+            }
         });
         // Add both buttons and the spacing region to the row
         sectionCButtons.getChildren().addAll(resetValues, spacingRegion, generateSphere);
@@ -578,6 +588,7 @@ public class CanvasController implements Initializable {
             alert.showAndWait();
 
             if (alert.getResult() == ButtonType.YES) {
+                Database.closeConnection();
                 Platform.exit();
             }
         });
@@ -602,7 +613,17 @@ public class CanvasController implements Initializable {
 
         AnchorPane statsContent = new AnchorPane();
         statsContent.setPrefSize(600.0,180.0);
-        statsContent.getChildren().addAll();
+
+        // Retrieve global sphere count from DB
+        String sphereCount;
+        if (connection != null) {
+            sphereCount = String.valueOf(Database.retrieveSphereCount(connection));
+        } else {
+            sphereCount = "-1";
+        }
+        Label test = new Label("Global Sphere Generation Count: " + sphereCount);
+        test.getStyleClass().add("normal-text");
+        statsContent.getChildren().addAll(test);
 
         stats.setContent(statsContent);
 

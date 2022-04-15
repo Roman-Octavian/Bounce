@@ -167,24 +167,11 @@ public class NewSphere extends Thread {
             if (leftEdge || rightEdge) {
                 directionX *= -1;
                 // Play sound on impact. Off by default
-                if (soundOn.isSelected()) {
-                    // Sound for wall collision. Off by default, since the FX MediaPlayer is very bloated and drastically drops FPS
-                    // Weird, but after wrapping everything in "if" statements the performance has vastly improved (???)
-                    // Maybe I was loading the audios every frame * the number of balls by mistake
-                    Media sound = new Media(new File("src/main/resources/assets/wall-collision.wav").toURI().toString());
-                    MediaPlayer mediaPlayer = new MediaPlayer(sound);
-                    mediaPlayer.play();
-                }
+                playSound("src/main/resources/assets/wall-collision.wav");
             }
             if (upperEdge || lowerEdge) {
                 directionY *= -1;
-                // Play sound on impact. Off by default
-                if (soundOn.isSelected()) {
-                    // Duplicated to wrap within "if" statement, this way it won't bother loading the media file if sound is off
-                    Media sound = new Media(new File("src/main/resources/assets/wall-collision.wav").toURI().toString());
-                    MediaPlayer mediaPlayer = new MediaPlayer(sound);
-                    mediaPlayer.play();
-                }
+                playSound("src/main/resources/assets/wall-collision.wav");
             }
 
             // If multiple spheres get into contact, prevent overlap and (hopefully) cause them to bounce
@@ -235,12 +222,9 @@ public class NewSphere extends Thread {
                         // Finally, invert the direction vector to create a bounce effect
                         directionX *= -1;
                         directionY *= -1;
+
                         // Play sound on impact. Off by default
-                        if (soundOn.isSelected()) {
-                            Media sound = new Media(new File("src/main/resources/assets/sphere-collision.wav").toURI().toString());
-                            MediaPlayer mediaPlayer = new MediaPlayer(sound);
-                            mediaPlayer.play();
-                        }
+                        playSound("src/main/resources/assets/sphere-collision.wav");
                     }
                 }
             }
@@ -310,5 +294,21 @@ public class NewSphere extends Thread {
         /* It may seem as if the three methods above could be combined into one, and that is true,
         but I think it's cleaner this way, and, moreover, only the ones that are needed will be called;
         Having a do-everything method may hinder performance, which already, in of itself, is not that great */
+
+        /**
+         * Plays an audio if the sound toggle is on.
+         * Used to make sound on sphere collisions with walls and other spheres
+         * @param url path to the sound file that is to be played
+         */
+        private void playSound(String url) {
+            if (soundOn.isSelected()) {
+                // Sound for wall collision. Off by default, since the FX MediaPlayer is very bloated and drastically drops FPS
+                // Weird, but after wrapping everything in "if" statements the performance has vastly improved (???)
+                // Maybe I was loading the audios every frame * the number of balls by mistake
+                Media sound = new Media(new File(url).toURI().toString());
+                MediaPlayer mediaPlayer = new MediaPlayer(sound);
+                mediaPlayer.play();
+            }
+        }
     }
 }
