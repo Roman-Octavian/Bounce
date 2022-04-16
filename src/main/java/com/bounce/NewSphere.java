@@ -9,6 +9,7 @@ import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import java.io.File;
 
+import java.sql.Connection;
 import java.util.Objects;
 import java.util.Random;
 
@@ -43,6 +44,9 @@ public class NewSphere extends Thread {
 
     // Random for blank values inside the control panel
     Random random = new Random();
+
+    // Variable to store the database connection
+    private static final Connection connection = Database.getConnection();
 
     /**
      * Retrieves the values of the X,Y vector which determines the direction and speed of the sphere
@@ -168,10 +172,21 @@ public class NewSphere extends Thread {
                 directionX *= -1;
                 // Play sound on impact. Off by default
                 playSound("src/main/resources/assets/wall-collision.wav");
+
+                /* Increment the global wall collision count by one in the Heroku database
+                Separate thread because the free plan is rather slow.
+                Having the queries run on the main Thread creates a delay of 1-2 seconds of freeze upon each wall collision
+                Sideloading the queries onto another Thread solves this issue; No need to try to stop this Thread, garbage collector will take care of it. */
+                if (connection != null) {
+                    new Thread(() -> Database.addToWallCollisionCount(connection)).start();
+                }
             }
             if (upperEdge || lowerEdge) {
                 directionY *= -1;
                 playSound("src/main/resources/assets/wall-collision.wav");
+                if (connection != null) {
+                    new Thread(() -> Database.addToWallCollisionCount(connection)).start();
+                }
             }
 
             // If multiple spheres get into contact, prevent overlap and (hopefully) cause them to bounce
@@ -225,6 +240,10 @@ public class NewSphere extends Thread {
 
                         // Play sound on impact. Off by default
                         playSound("src/main/resources/assets/sphere-collision.wav");
+
+                        if (connection != null) {
+                            new Thread(() -> Database.addToSphereCollisionCount(connection)).start();
+                        }
                     }
                 }
             }

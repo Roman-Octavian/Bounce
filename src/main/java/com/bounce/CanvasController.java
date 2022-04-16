@@ -42,12 +42,15 @@ public class CanvasController implements Initializable {
     // Root pane
     @FXML private AnchorPane canvas;
 
+    // Transitions and boolean for toggling the control panel's visibility
     private TranslateTransition controlPanelVisible;
     private TranslateTransition controlPanelInvisible;
     private boolean controlPanelToggle = false;
+
+    // Variable to store the database connection
     private static final Connection connection = Database.getConnection();
 
-    // Storing spheres, threads and animations in ArrayLists for manipulation down the line
+    // ArrayLists for sphere, thread and animation manipulation down the line
     ArrayList<Sphere> sphereList = new ArrayList<>();
     ArrayList<Thread> threadList = new ArrayList<>();
     ArrayList<AnimationTimer> animationList = new ArrayList<>();
@@ -119,6 +122,26 @@ public class CanvasController implements Initializable {
     }
 
     /**
+     * Function to define basic properties of HBox elements.
+     * The "rows" in our tabs will be contained within HBox nodes.
+     * This function customizes any given amount of HBoxes at once.
+     * Avoids needless repetition.
+     * @param styleClass CSS class that will apply to all HBox arguments
+     * @param position Position enum that wil apply to all HBox arguments
+     * @param height Height in pixels of all HBox elements
+     * @param width Width in pixels of all HBox elements
+     * @param args Any given amount of HBox nodes to be customized by the function
+     */
+    public void customizeBasicHBox(String styleClass, Pos position, double height, double width, HBox... args) {
+        for (HBox section : args) {
+            section.getStyleClass().add(styleClass);
+            section.setAlignment(position);
+            section.setPrefHeight(height);
+            section.setPrefWidth(width);
+        }
+    }
+
+    /**
      * Generate the GUI elements of the "Info" Tab.
      * @return the "Info" Tab
      */
@@ -135,40 +158,18 @@ public class CanvasController implements Initializable {
         scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         scrollPane.setContent(infoContainer);
 
-        // Sections for each row of the tab
+        // Instantiating sections for each row of the tab as HBox nodes
         HBox infoSectionA = new HBox();
-        infoSectionA.setAlignment(Pos.CENTER);
-        infoSectionA.setPrefSize(600.0, 20.0);
-
         HBox infoSectionB = new HBox();
-        infoSectionB.getStyleClass().add("info-container");
-        infoSectionB.setAlignment(Pos.CENTER_LEFT);
-        infoSectionB.setPrefWidth(600.0);
-
         HBox infoSectionC = new HBox();
-        infoSectionC.getStyleClass().add("info-container");
-        infoSectionC.setAlignment(Pos.CENTER_LEFT);
-        infoSectionC.setPrefWidth(600.0);
-
         HBox infoSectionD = new HBox();
-        infoSectionD.getStyleClass().add("info-container");
-        infoSectionD.setAlignment(Pos.CENTER_LEFT);
-        infoSectionD.setPrefWidth(600.0);
-
         HBox infoSectionE = new HBox();
-        infoSectionE.getStyleClass().add("info-container");
-        infoSectionE.setAlignment(Pos.CENTER_LEFT);
-        infoSectionE.setPrefWidth(600.0);
-
         HBox infoSectionF = new HBox();
-        infoSectionF.getStyleClass().add("info-container");
-        infoSectionF.setAlignment(Pos.CENTER_LEFT);
-        infoSectionF.setPrefWidth(600.0);
-
         HBox infoSectionG = new HBox();
-        infoSectionG.getStyleClass().add("info-container");
-        infoSectionG.setAlignment(Pos.CENTER_LEFT);
-        infoSectionG.setPrefWidth(600.0);
+
+        // Customizing all HBox nodes
+        customizeBasicHBox(null, Pos.CENTER, 20.0, 600.0, infoSectionA);
+        customizeBasicHBox("info-container", Pos.CENTER_LEFT, 0.0, 600.0, infoSectionB, infoSectionC, infoSectionD, infoSectionE, infoSectionF, infoSectionG);
 
         // Text elements for the tab
         Text header = new Text("Bouncing Spheres");
@@ -252,32 +253,24 @@ public class CanvasController implements Initializable {
 
         // First row of the container
         HBox newSphereSectionA = new HBox();
-        newSphereSectionA.setAlignment(Pos.CENTER);
-        newSphereSectionA.setPrefSize(600.0, 60.0);
-
         // Second row of the container
         HBox newSphereSectionB = new HBox();
-        newSphereSectionB.setAlignment(Pos.CENTER);
-        newSphereSectionB.setPrefSize(600.0,60.0);
-
         // Third row of the container
         HBox newSphereSectionC = new HBox();
-        newSphereSectionC.setAlignment(Pos.CENTER);
-        newSphereSectionC.setPrefSize(600.0,40.0);
+
+        customizeBasicHBox(null, Pos.CENTER, 60.0, 600.0, newSphereSectionA, newSphereSectionB);
+        customizeBasicHBox(null, Pos.CENTER, 40.0, 600.0, newSphereSectionC);
 
         /* ----------------------SECTION A---------------------- */
 
         // First half of the first row
         HBox sectionAInitialPosition = new HBox();
-        sectionAInitialPosition.setPrefSize(300.0,60.0);
         sectionAInitialPosition.setSpacing(10.0);
-        sectionAInitialPosition.setAlignment(Pos.CENTER);
-
         // Second half of the first row
         HBox sectionASizeSlider = new HBox();
-        sectionASizeSlider.setPrefSize(300.0,60.0);
         sectionASizeSlider.setSpacing(10.0);
-        sectionASizeSlider.setAlignment(Pos.CENTER);
+
+        customizeBasicHBox(null, Pos.CENTER, 60.0, 300.0, sectionAInitialPosition, sectionASizeSlider);
 
         // Label for size slider node
         Label initialPositionLabel = new Label();
@@ -356,11 +349,15 @@ public class CanvasController implements Initializable {
                 "Random", "0",
                 "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"
         );
+
+        // ValueFactories for spinner values
+        SpinnerValueFactory<String> xValueFactory = new SpinnerValueFactory.ListSpinnerValueFactory<>(values);
+        SpinnerValueFactory<String> yValueFactory = new SpinnerValueFactory.ListSpinnerValueFactory<>(values);
+
         // Spinner for X coordinate
         Spinner<String> xSpinner = new Spinner<>();
         xSpinner.setId("initialVectorX");
         xSpinner.setPrefSize(70.0, 25.0);
-        SpinnerValueFactory<String> xValueFactory = new SpinnerValueFactory.ListSpinnerValueFactory<>(values);
         xValueFactory.setValue("Random");
         xSpinner.getEditor().setFont(Font.font(Font.getDefault().getName(), FontWeight.LIGHT, 9));
         xSpinner.setValueFactory(xValueFactory);
@@ -372,7 +369,6 @@ public class CanvasController implements Initializable {
         Spinner<String> ySpinner = new Spinner<>();
         ySpinner.setId("initialVectorY");
         ySpinner.setPrefSize(70.0, 25.0);
-        SpinnerValueFactory<String> yValueFactory = new SpinnerValueFactory.ListSpinnerValueFactory<>(values);
         yValueFactory.setValue("Random");
         ySpinner.getEditor().setFont(Font.font(Font.getDefault().getName(), FontWeight.LIGHT, 9));
         ySpinner.setValueFactory(yValueFactory);
@@ -476,18 +472,13 @@ public class CanvasController implements Initializable {
 
         // First row of the container
         HBox optionsSectionA = new HBox();
-        optionsSectionA.setAlignment(Pos.CENTER_LEFT);
-        optionsSectionA.setPrefSize(600.0, 60.0);
-
         // Second row of the container
         HBox optionsSectionB = new HBox();
-        optionsSectionB.setAlignment(Pos.CENTER_LEFT);
-        optionsSectionB.setPrefSize(600.0,55.0);
-
         // Third row of the container
         HBox optionsSectionC = new HBox();
-        optionsSectionC.setAlignment(Pos.CENTER_LEFT);
-        optionsSectionC.setPrefSize(600.0,55.0);
+
+        customizeBasicHBox(null, Pos.CENTER_LEFT, 60.0, 600.0, optionsSectionA);
+        customizeBasicHBox(null, Pos.CENTER_LEFT, 55.0, 600.0, optionsSectionB, optionsSectionC);
 
         /* ----------------------SECTION A---------------------- */
         // Region to space nodes out
@@ -607,6 +598,10 @@ public class CanvasController implements Initializable {
         return options;
     }
 
+    /**
+     * Generate the GUI elements of the "Stats" Tab.
+     * @return the "Stats" Tab
+     */
     public Tab generateStatsTab() {
         Tab stats = new Tab();
         stats.setText("Stats");
@@ -614,16 +609,40 @@ public class CanvasController implements Initializable {
         AnchorPane statsContent = new AnchorPane();
         statsContent.setPrefSize(600.0,180.0);
 
+        // Sections for each row of the tab
+        HBox statsSectionA = new HBox();
+        HBox statsSectionB = new HBox();
+        HBox statsSectionC = new HBox();
+        HBox statsSectionD = new HBox();
+
+        customizeBasicHBox("info-container", Pos.CENTER_LEFT, 0.0, 600.0, statsSectionA, statsSectionB, statsSectionC);
+        customizeBasicHBox(null, Pos.CENTER, 0.0, 600.0, statsSectionD);
+
         // Retrieve global sphere count from DB
-        String sphereCount;
+        int globalSphereCount;
         if (connection != null) {
-            sphereCount = String.valueOf(Database.retrieveSphereCount(connection));
+            globalSphereCount = Database.retrieveSphereCount(connection);
         } else {
-            sphereCount = "-1";
+            globalSphereCount = -1;
         }
-        Label test = new Label("Global Sphere Generation Count: " + sphereCount);
-        test.getStyleClass().add("normal-text");
-        statsContent.getChildren().addAll(test);
+
+        int localSphereCount = sphereList.size();
+
+
+        Text localText = new Text("Spheres Currently Running: " + localSphereCount);
+        localText.getStyleClass().add("normal-text");
+
+        Text globalText = new Text("Global Sphere Generation Count: " + globalSphereCount);
+        globalText.getStyleClass().add("normal-text");
+
+        Text collisionText = new Text();
+
+        Button refresh = new Button("Refresh");
+        refresh.setOnAction(actionEvent -> {
+
+        });
+
+        statsContent.getChildren().addAll(statsSectionA, statsSectionB, statsSectionC, statsSectionD);
 
         stats.setContent(statsContent);
 
