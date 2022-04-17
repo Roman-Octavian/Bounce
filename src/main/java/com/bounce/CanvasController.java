@@ -48,16 +48,38 @@ public class CanvasController implements Initializable {
     private boolean controlPanelToggle = false;
 
     // Variable to store the database connection
-    private static final Connection connection = Database.getConnection();
+    private static Connection connection = Database.getConnection();
+
+    // Session counters to keep track of events for statistics tab
+    private int sessionSphereCount = 0;
+    private int sphereCollisionCount = 0;
+    private int wallCollisionCount = 0;
+    // Global counters to keep track of events for statistics tab
+    private int globalSphereCount = 0;
+    private int globalSphereCollisionCount = 0;
+    private int globalWallCollisionCount = 0;
 
     // ArrayLists for sphere, thread and animation manipulation down the line
     ArrayList<Sphere> sphereList = new ArrayList<>();
     ArrayList<Thread> threadList = new ArrayList<>();
     ArrayList<AnimationTimer> animationList = new ArrayList<>();
 
-    // Getters to use in conjunction with the "Bridge" class
+    // Getters and setters to use in conjunction with the "Bridge" class
+    // Getters
     public AnchorPane getCanvas() {
         return canvas;
+    }
+
+    public int getSessionSphereCount() {
+        return sessionSphereCount;
+    }
+
+    public int getSphereCollisionCount() {
+        return sphereCollisionCount;
+    }
+
+    public int getWallCollisionCount() {
+        return wallCollisionCount;
     }
 
     public ArrayList<Sphere> getSphereList() {
@@ -70,6 +92,14 @@ public class CanvasController implements Initializable {
 
     public ArrayList<AnimationTimer> getAnimationList() {
         return animationList;
+    }
+    // Setters
+    public void setSphereCollisionCount(int sphereCollisionCount) {
+        this.sphereCollisionCount = sphereCollisionCount;
+    }
+
+    public void setWallCollisionCount(int wallCollisionCount) {
+        this.wallCollisionCount = wallCollisionCount;
     }
 
     /**
@@ -158,17 +188,16 @@ public class CanvasController implements Initializable {
         scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         scrollPane.setContent(infoContainer);
 
-        // Instantiating sections for each row of the tab as HBox nodes
+        // Instantiating and customizing sections
         HBox infoSectionA = new HBox();
+        customizeBasicHBox(null, Pos.CENTER, 20.0, 600.0, infoSectionA);
+
         HBox infoSectionB = new HBox();
         HBox infoSectionC = new HBox();
         HBox infoSectionD = new HBox();
         HBox infoSectionE = new HBox();
         HBox infoSectionF = new HBox();
         HBox infoSectionG = new HBox();
-
-        // Customizing all HBox nodes
-        customizeBasicHBox(null, Pos.CENTER, 20.0, 600.0, infoSectionA);
         customizeBasicHBox("info-container", Pos.CENTER_LEFT, 0.0, 600.0, infoSectionB, infoSectionC, infoSectionD, infoSectionE, infoSectionF, infoSectionG);
 
         // Text elements for the tab
@@ -432,17 +461,13 @@ public class CanvasController implements Initializable {
         generateSphere.setMnemonicParsing(false);
         generateSphere.setPrefWidth(120.0);
         generateSphere.setOnAction(actionEvent -> {
+            // Create a new thread and start it
             NewSphere sphere = new NewSphere();
             sphere.start();
+            //Add thread to threadList
             Bridge.getCanvasController().getThreadList().add(sphere);
-
-            /* Increment the global sphere generation count by one in the Heroku database
-            Separate thread because the free plan is rather slow.
-            Having the queries run on the main Thread creates a delay of 1-2 seconds from "Generate Sphere" button press to actual generation occurring.
-            Sideloading the queries onto another Thread solves this issue; No need to try to stop this Thread, garbage collector will take care of it. */
-            if (connection != null) {
-                new Thread(() -> Database.addToSphereCount(connection)).start();
-            }
+            // Increment the session sphere generation count by one
+            sessionSphereCount += 1;
         });
         // Add both buttons and the spacing region to the row
         sectionCButtons.getChildren().addAll(resetValues, spacingRegion, generateSphere);
@@ -579,6 +604,13 @@ public class CanvasController implements Initializable {
             alert.showAndWait();
 
             if (alert.getResult() == ButtonType.YES) {
+                // Update global values
+                connection = Database.getConnection();
+                if (connection != null) {
+                    Database.updateSphereCount(connection);
+                    Database.updateSphereCollisionCount(connection);
+                    Database.updateWallCollisionCount(connection);
+                }
                 Database.closeConnection();
                 Platform.exit();
             }
@@ -606,47 +638,95 @@ public class CanvasController implements Initializable {
         Tab stats = new Tab();
         stats.setText("Stats");
 
-        AnchorPane statsContent = new AnchorPane();
-        statsContent.setPrefSize(600.0,180.0);
+        VBox statsContainer = new VBox();
+        statsContainer.setPrefSize(600.0, 180.0);
+        ScrollPane statsContent = new ScrollPane();
+        statsContent.setContent(statsContainer);
+        statsContent.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        statsContent.setPrefSize(600.0, 180.0);
 
         // Sections for each row of the tab
         HBox statsSectionA = new HBox();
         HBox statsSectionB = new HBox();
         HBox statsSectionC = new HBox();
         HBox statsSectionD = new HBox();
+        HBox statsSectionE = new HBox();
+        HBox statsSectionF = new HBox();
+        HBox statsSectionG = new HBox();
+        HBox statsSectionH = new HBox();
 
-        customizeBasicHBox("info-container", Pos.CENTER_LEFT, 0.0, 600.0, statsSectionA, statsSectionB, statsSectionC);
-        customizeBasicHBox(null, Pos.CENTER, 0.0, 600.0, statsSectionD);
+        customizeBasicHBox(null, Pos.CENTER, 0.0, 600.0, statsSectionA);
+        customizeBasicHBox("info-container", Pos.CENTER_LEFT, 0.0, 600.0, statsSectionB, statsSectionC, statsSectionD, statsSectionE, statsSectionF, statsSectionG, statsSectionH);
+
+        // Local (session) counters (Not retrieved from DB)
+        Text runningText = new Text("Spheres Currently Running: " + sphereList.size());
+        runningText.getStyleClass().add("normal-text");
+
+        Text sphereSessionText = new Text("Total Spheres This Session: " + sessionSphereCount);
+        sphereSessionText.getStyleClass().add("normal-text");
+
+        Text sphereCollisionSessionText = new Text("Sphere-to-Sphere Collisions This Session: " + sphereCollisionCount);
+        sphereCollisionSessionText.getStyleClass().add("normal-text");
+
+        Text wallCollisionSessionText = new Text("Sphere-to-Wall Collisions This Session: " + wallCollisionCount);
+        wallCollisionSessionText.getStyleClass().add("normal-text");
+
+        // Global (remote) counters
 
         // Retrieve global sphere count from DB
-        int globalSphereCount;
-        if (connection != null) {
-            globalSphereCount = Database.retrieveSphereCount(connection);
-        } else {
-            globalSphereCount = -1;
-        }
+        updateGlobalValues();
 
-        int localSphereCount = sphereList.size();
+        Text globalSphereText = new Text("Total Spheres Globally: " + globalSphereCount);
+        globalSphereText.getStyleClass().add("normal-text");
 
+        Text globalSphereCollisionText = new Text("Sphere-to-Sphere Collisions Globally: " + globalSphereCollisionCount);
+        globalSphereCollisionText.getStyleClass().add("normal-text");
 
-        Text localText = new Text("Spheres Currently Running: " + localSphereCount);
-        localText.getStyleClass().add("normal-text");
-
-        Text globalText = new Text("Global Sphere Generation Count: " + globalSphereCount);
-        globalText.getStyleClass().add("normal-text");
-
-        Text collisionText = new Text();
-
+        Text globalWallCollisionText = new Text("Sphere-to-Wall Collisions Globally: " + globalWallCollisionCount);
+        globalWallCollisionText.getStyleClass().add("normal-text");
+        // Refresh button
         Button refresh = new Button("Refresh");
         refresh.setOnAction(actionEvent -> {
+            // Update session values
+            runningText.setText("Spheres Currently Running: " + sphereList.size());
+            sphereSessionText.setText("Total Spheres This Session: " + sessionSphereCount);
+            sphereCollisionSessionText.setText("Sphere-to-Sphere Collisions This Session: " + sphereCollisionCount);
+            wallCollisionSessionText.setText("Sphere-to-Wall Collisions This Session: " + wallCollisionCount);
 
+            /* Update global values. Doesn't actually interact with the database
+            This has been done to prevent 2 second freeze on button press, and limit the amount of
+            database questions. Values are actually only updated remotely on application exit,
+            thus limiting the amount of questions to less than 10 per session */
+            globalSphereText.setText("Total Spheres Globally: " + (globalSphereCount + sessionSphereCount));
+            globalSphereCollisionText.setText("Sphere-to-Sphere Collisions Globally: " + (globalSphereCollisionCount + sphereCollisionCount));
+            globalWallCollisionText.setText("Sphere-to-Wall Collisions Globally: " + (globalWallCollisionCount + wallCollisionCount));
         });
 
-        statsContent.getChildren().addAll(statsSectionA, statsSectionB, statsSectionC, statsSectionD);
+        statsSectionA.getChildren().add(refresh);
+        statsSectionB.getChildren().add(runningText);
+        statsSectionC.getChildren().add(sphereSessionText);
+        statsSectionD.getChildren().add(sphereCollisionSessionText);
+        statsSectionE.getChildren().add(wallCollisionSessionText);
+        statsSectionF.getChildren().add(globalSphereText);
+        statsSectionG.getChildren().add(globalSphereCollisionText);
+        statsSectionH.getChildren().add(globalWallCollisionText);
 
+        statsContainer.getChildren().addAll(statsSectionA, statsSectionB, statsSectionC, statsSectionF, statsSectionD, statsSectionG, statsSectionE, statsSectionH);
         stats.setContent(statsContent);
 
         return stats;
+    }
+
+    public void updateGlobalValues() {
+        if (connection != null) {
+            globalSphereCount = Database.retrieveSphereCount(connection);
+            globalSphereCollisionCount = Database.retrieveSphereCollisionCount(connection);
+            globalWallCollisionCount = Database.retrieveWallCollisionCount(connection);
+        } else {
+            globalSphereCount = -1;
+            globalSphereCollisionCount = -1;
+            globalWallCollisionCount = -1;
+        }
     }
 
 

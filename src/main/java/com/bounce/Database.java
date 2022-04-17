@@ -34,12 +34,13 @@ public class Database {
     }
 
     /**
-     * Add one to global sphere generation count
+     * Add sphere session count to global sphere generation count
      * @param c connection to the database
      */
-    public static void addToSphereCount(Connection c) {
+    public static void updateSphereCount(Connection c) {
         try {
-            preparedStatement = c.prepareStatement("UPDATE heroku_45b5e60a7be0064.statistics SET sphere_count = sphere_count + 1;");
+            preparedStatement = c.prepareStatement("UPDATE heroku_45b5e60a7be0064.statistics SET sphere_count = sphere_count + ?;");
+            preparedStatement.setInt(1, Bridge.getCanvasController().getSessionSphereCount());
             preparedStatement.execute();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -47,12 +48,13 @@ public class Database {
     }
 
     /**
-     * Add one to global sphere to sphere collision count
+     * Add sphere collision session count to global sphere-to-sphere collision count
      * @param c connection to the database
      */
-    public static void addToSphereCollisionCount(Connection c) {
+    public static void updateSphereCollisionCount(Connection c) {
         try {
-            preparedStatement = c.prepareStatement("UPDATE heroku_45b5e60a7be0064.statistics SET sphere_collision_count = sphere_collision_count + 1;");
+            preparedStatement = c.prepareStatement("UPDATE heroku_45b5e60a7be0064.statistics SET sphere_collision_count = sphere_collision_count + ?;");
+            preparedStatement.setInt(1, Bridge.getCanvasController().getSphereCollisionCount());
             preparedStatement.execute();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -60,12 +62,13 @@ public class Database {
     }
 
     /**
-     * Add one to global sphere to wall collision count
+     * Add wall collision session count to global sphere-to-wall collision count
      * @param c connection to the database
      */
-    public static void addToWallCollisionCount(Connection c) {
+    public static void updateWallCollisionCount(Connection c) {
         try {
-            preparedStatement = c.prepareStatement("UPDATE heroku_45b5e60a7be0064.statistics SET wall_collision_count = wall_collision_count + 1;");
+            preparedStatement = c.prepareStatement("UPDATE heroku_45b5e60a7be0064.statistics SET wall_collision_count = wall_collision_count + ?;");
+            preparedStatement.setInt(1, Bridge.getCanvasController().getWallCollisionCount());
             preparedStatement.execute();
         } catch (SQLException e) {
             e.printStackTrace();
