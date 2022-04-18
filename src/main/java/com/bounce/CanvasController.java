@@ -10,6 +10,7 @@ import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
+import javafx.scene.Cursor;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
@@ -18,6 +19,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Line;
 import javafx.scene.shape.Sphere;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
@@ -267,7 +269,6 @@ public class CanvasController implements Initializable {
 
     /**
      * Generate the GUI elements of the "New Sphere" Tab.
-     * Tedious, but dynamic.
      * @return the "New Sphere" Tab
      */
     public Tab generateNewSphereTab() {
@@ -291,7 +292,6 @@ public class CanvasController implements Initializable {
         customizeBasicHBox(null, Pos.CENTER, 40.0, 600.0, newSphereSectionC);
 
         /* ----------------------SECTION A---------------------- */
-
         // First half of the first row
         HBox sectionAInitialPosition = new HBox();
         sectionAInitialPosition.setSpacing(10.0);
@@ -331,6 +331,81 @@ public class CanvasController implements Initializable {
         Label yLabel = new Label();
         yLabel.setText("Y");
 
+        /* Button that will add cursor coordinates to position fields on mouse drag release
+        Draws lines on all four axis on drag, to display movement nicely */
+        Button coordsPicker = new Button();
+
+        // Line from leftmost side to mouse cursor
+        Line xLeft = new Line();
+        xLeft.getStyleClass().add("line");
+        // Line from rightmost side to mouse cursor
+        Line xRight = new Line();
+        xRight.getStyleClass().add("line");
+        // Line from topmost side to mouse cursor
+        Line yTop = new Line();
+        yTop.getStyleClass().add("line");
+        // Line from bottommost side to mouse cursor
+        Line yBottom = new Line();
+        yBottom.getStyleClass().add("line");
+
+        // Immediately upon mouse press, add lines to canvas
+        coordsPicker.setOnMousePressed(mouseEvent -> {
+            canvas.getChildren().add(xLeft);
+            canvas.getChildren().add(xRight);
+            canvas.getChildren().add(yTop);
+            canvas.getChildren().add(yBottom);
+        });
+        // As we are dragging the mouse along, draw the lines from the edges of the screen to the cursor
+        coordsPicker.setOnMouseDragged(mouseEvent -> {
+            canvas.setCursor(Cursor.CROSSHAIR);
+            xLeft.setStartX(Screen.getPrimary().getBounds().getMinX());
+            xLeft.setEndX(mouseEvent.getScreenX());
+            xLeft.setStartY(mouseEvent.getScreenY());
+            xLeft.setEndY(mouseEvent.getScreenY());
+
+            xRight.setStartX(Screen.getPrimary().getBounds().getMaxX());
+            xRight.setEndX(mouseEvent.getScreenX());
+            xRight.setStartY(mouseEvent.getScreenY());
+            xRight.setEndY(mouseEvent.getScreenY());
+
+            yTop.setStartX(mouseEvent.getScreenX());
+            yTop.setEndX(mouseEvent.getScreenX());
+            yTop.setStartY(Screen.getPrimary().getBounds().getMinY());
+            yTop.setEndY(mouseEvent.getScreenY());
+
+            yBottom.setStartX(mouseEvent.getScreenX());
+            yBottom.setEndX(mouseEvent.getScreenX());
+            yBottom.setStartY(Screen.getPrimary().getBounds().getMaxY());
+            yBottom.setEndY(mouseEvent.getScreenY());
+
+        });
+        // Make lines visible as we enter the drag
+        coordsPicker.setOnMouseDragEntered(mouseDragEvent -> {
+            xLeft.setVisible(true);
+            xRight.setVisible(true);
+            yTop.setVisible(true);
+            yBottom.setVisible(true);
+        });
+        // Make lines invisible as we leave the drag
+        coordsPicker.setOnMouseDragExited(mouseDragEvent -> {
+            xLeft.setVisible(false);
+            xRight.setVisible(false);
+            yTop.setVisible(false);
+            yBottom.setVisible(false);
+        });
+        /* When mouse is released, first, get cursor coordinates and add them to the position fields
+        second, reset the lines, and remove them from the canvas */
+        coordsPicker.setOnMouseReleased(mouseEvent -> {
+            // Take cursor coordinates and add them to position fields
+            xPosField.setText(String.valueOf((int) mouseEvent.getScreenX()));
+            yPosField.setText(String.valueOf((int) mouseEvent.getScreenY()));
+
+            // Reset lines
+            resetLines(xLeft, xRight, yTop, yBottom);
+            // Reset cursor
+            canvas.setCursor(Cursor.DEFAULT);
+        });
+
         // Label for size slider node
         Label sizeLabel = new Label();
         sizeLabel.setText("Size (25)");
@@ -347,11 +422,10 @@ public class CanvasController implements Initializable {
         sizeSlider.valueProperty().addListener((
                 observableValue, oldValue, newValue) -> sizeLabel.textProperty().setValue("Size (" + newValue.intValue() + ")"));
 
-        sectionAInitialPosition.getChildren().addAll(initialPositionLabel, xPosField, xLabel, yPosField, yLabel);
+        sectionAInitialPosition.getChildren().addAll(initialPositionLabel, xPosField, xLabel, yPosField, yLabel, coordsPicker);
         sectionASizeSlider.getChildren().addAll(sizeLabel, sizeSlider);
 
         newSphereSectionA.getChildren().addAll(sectionAInitialPosition, sectionASizeSlider);
-
         /* ----------------------SECTION A---------------------- */
 
         /* ----------------------SECTION B---------------------- */
@@ -425,7 +499,6 @@ public class CanvasController implements Initializable {
 
         // Add both halves to the entire row
         newSphereSectionB.getChildren().addAll(sectionBSpeedAndDirection, sectionBColorPicker);
-
         /* ----------------------SECTION B---------------------- */
 
         /* ----------------------SECTION C---------------------- */
@@ -473,14 +546,30 @@ public class CanvasController implements Initializable {
         sectionCButtons.getChildren().addAll(resetValues, spacingRegion, generateSphere);
         // Add the row the section
         newSphereSectionC.getChildren().add(sectionCButtons);
-
         /* ----------------------SECTION C---------------------- */
+
         // Add all three sections (rows) to the newSphere outer container
         newSphereContainer.getChildren().addAll(newSphereSectionA, newSphereSectionB, newSphereSectionC);
         // Set content tab to the outer container
         newSphere.setContent(newSphereContainer);
         return newSphere;
         /* ===================NEW SPHERE END=================== */
+    }
+
+    /**
+     * Reset any given amount of lines back to their initial state
+     * Resets dimensions and removes lines from canvas
+     * @param line lines to be reset
+     */
+    public void resetLines(Line... line) {
+
+        for (Line l : line) {
+            l.setStartX(0);
+            l.setStartY(0);
+            l.setEndX(0);
+            l.setEndY(0);
+            canvas.getChildren().remove(l);
+        }
     }
 
     /**
@@ -645,6 +734,12 @@ public class CanvasController implements Initializable {
         statsContent.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         statsContent.setPrefSize(600.0, 180.0);
 
+        // Divisions between session and global statistics
+        VBox sessionDiv = new VBox();
+        sessionDiv.setId("session");
+        VBox globalDiv = new VBox();
+        globalDiv.setId("global");
+
         // Sections for each row of the tab
         HBox statsSectionA = new HBox();
         HBox statsSectionB = new HBox();
@@ -674,7 +769,7 @@ public class CanvasController implements Initializable {
         // Global (remote) counters
 
         // Retrieve global sphere count from DB
-        updateGlobalValues();
+        retrieveGlobalValues();
 
         Text globalSphereText = new Text("Total Spheres Globally: " + globalSphereCount);
         globalSphereText.getStyleClass().add("normal-text");
@@ -702,6 +797,9 @@ public class CanvasController implements Initializable {
             globalWallCollisionText.setText("Sphere-to-Wall Collisions Globally: " + (globalWallCollisionCount + wallCollisionCount));
         });
 
+        Region spacingRegionA = new Region();
+        spacingRegionA.setMinHeight(50.0);
+
         statsSectionA.getChildren().add(refresh);
         statsSectionB.getChildren().add(runningText);
         statsSectionC.getChildren().add(sphereSessionText);
@@ -711,13 +809,18 @@ public class CanvasController implements Initializable {
         statsSectionG.getChildren().add(globalSphereCollisionText);
         statsSectionH.getChildren().add(globalWallCollisionText);
 
-        statsContainer.getChildren().addAll(statsSectionA, statsSectionB, statsSectionC, statsSectionF, statsSectionD, statsSectionG, statsSectionE, statsSectionH);
+        sessionDiv.getChildren().addAll(statsSectionB, statsSectionC, statsSectionD, statsSectionE);
+        globalDiv.getChildren().addAll(statsSectionF, statsSectionG, statsSectionH);
+        statsContainer.getChildren().addAll(statsSectionA, sessionDiv, spacingRegionA, globalDiv);
         stats.setContent(statsContent);
 
         return stats;
     }
 
-    public void updateGlobalValues() {
+    /**
+     * Retrieves the amount of spheres and collisions stored in the database
+     */
+    public void retrieveGlobalValues() {
         if (connection != null) {
             globalSphereCount = Database.retrieveSphereCount(connection);
             globalSphereCollisionCount = Database.retrieveSphereCollisionCount(connection);
