@@ -8,6 +8,7 @@
     -fx-border-width: 1px;
     -fx-border-radius: 5px;
     -fx-background-radius: 5px;
+    -fx-max-width: 590px;
 }
 
 #global {
@@ -20,6 +21,7 @@
     -fx-border-width: 1px;
     -fx-border-radius: 5px;
     -fx-background-radius: 5px;
+    -fx-max-width: 590px;
 }
 
 #header {
@@ -34,6 +36,43 @@
 #howToUse {
     -fx-font-family: monospace;
     -fx-font-size: 20px;
+}
+
+#coordsPicker {
+    -fx-font-size: 11px;
+    -fx-min-height: 24px;
+    -fx-max-width: 10px;
+}
+
+#refresh {
+    -fx-border-insets: 10px;
+    -fx-background-insets: 10px;
+    -fx-pref-width: 100px;
+    -fx-pref-height: 50px;
+    -fx-background-color: transparent;
+    -fx-border-style: solid;
+    -fx-border-color: #ff0000;
+    -fx-border-width: 1px;
+    -fx-border-radius: 4px;
+    -fx-background-radius: 4px;
+}
+
+#refresh:hover {
+    -fx-border-insets: 10px;
+    -fx-background-insets: 10px;
+    -fx-pref-width: 100px;
+    -fx-pref-height: 50px;
+    -fx-background-color: #f17979;
+    -fx-text-fill: #ffffff;
+    -fx-border-style: solid;
+    -fx-border-color: #ff0000;
+    -fx-border-width: 1px;
+    -fx-border-radius: 4px;
+    -fx-background-radius: 4px;
+}
+
+#refresh:pressed {
+    -fx-background-color: #ea3e3e;
 }
 
 .line {

@@ -21,6 +21,7 @@ public class Canvas extends Application {
     public void start(Stage stage) throws IOException {
         // Create the scene and link it with it's corresponding controller
         FXMLLoader fxmlLoader = new FXMLLoader(Canvas.class.getResource("canvas.fxml"));
+        // Not adding anti aliasing because it glitches out
         Scene canvas = new Scene(fxmlLoader.load());
         // Link canvas scene to css stylesheet
         canvas.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/com/bounce/styles.css")).toExternalForm());

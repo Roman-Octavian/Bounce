@@ -38,7 +38,7 @@ public class NewSphere extends Thread {
     ToggleButton soundOn = (ToggleButton) Bridge.getCanvasController().getCanvas().getScene().lookup("#soundOn");
 
 
-    // Instantiate a new JavaFX sphere object with a given radius.
+    // Instantiate a new JavaFX sphere object with a given radius
     Sphere sphere = new Sphere(size.getValue());
 
     // Random for blank values inside the control panel
@@ -160,7 +160,6 @@ public class NewSphere extends Thread {
             boolean rightEdge = sphere.getLayoutX() >= (Bridge.getCanvasController().getCanvas().getLayoutBounds().getMaxX() - sphere.getRadius());
             boolean lowerEdge = sphere.getLayoutY() >= (Bridge.getCanvasController().getCanvas().getLayoutBounds().getMaxY() - sphere.getRadius());
             boolean upperEdge = sphere.getLayoutY() <= (Bridge.getCanvasController().getCanvas().getLayoutBounds().getMinY() + sphere.getRadius());
-
 
             /* Invert the direction of the sphere if any of the bounds is being touched.
             Creates a "bouncing" effect */

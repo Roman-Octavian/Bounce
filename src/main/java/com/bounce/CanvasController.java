@@ -231,7 +231,8 @@ public class CanvasController implements Initializable {
         Text initialPosition = new Text(
                         "Your display resolution is detected as " + (int) Screen.getPrimary().getVisualBounds().getMaxY() + "x" + (int) Screen.getPrimary().getVisualBounds().getMaxX() + ". " +
                         "Generating spheres outside of those bounds will force spheres " +
-                        "to the nearest coordinate on screen."
+                        "to the nearest coordinate on screen." +
+                        "Drag the coordinates picker (+) to pinpoint a particular coordinate."
         );
         initialPosition.wrappingWidthProperty().set(570);
         initialPosition.getStyleClass().add("normal-text");
@@ -303,7 +304,7 @@ public class CanvasController implements Initializable {
 
         // Label for size slider node
         Label initialPositionLabel = new Label();
-        initialPositionLabel.setText("Initial Position");
+        initialPositionLabel.setText("Position");
 
         // X coordinate position field
         TextField xPosField = new TextField();
@@ -333,8 +334,8 @@ public class CanvasController implements Initializable {
 
         /* Button that will add cursor coordinates to position fields on mouse drag release
         Draws lines on all four axis on drag, to display movement nicely */
-        Button coordsPicker = new Button();
-
+        Button coordsPicker = new Button("+");
+        coordsPicker.setId("coordsPicker");
         // Line from leftmost side to mouse cursor
         Line xLeft = new Line();
         xLeft.getStyleClass().add("line");
@@ -348,6 +349,9 @@ public class CanvasController implements Initializable {
         Line yBottom = new Line();
         yBottom.getStyleClass().add("line");
 
+        // Change cursor to open hand on hover
+        coordsPicker.setOnMouseEntered(mouseEvent -> canvas.setCursor(Cursor.OPEN_HAND));
+        coordsPicker.setOnMouseExited(mouseEvent -> canvas.setCursor(Cursor.DEFAULT));
         // Immediately upon mouse press, add lines to canvas
         coordsPicker.setOnMousePressed(mouseEvent -> {
             canvas.getChildren().add(xLeft);
@@ -357,7 +361,9 @@ public class CanvasController implements Initializable {
         });
         // As we are dragging the mouse along, draw the lines from the edges of the screen to the cursor
         coordsPicker.setOnMouseDragged(mouseEvent -> {
+            // Change cursor to cross-hair on drag
             canvas.setCursor(Cursor.CROSSHAIR);
+
             xLeft.setStartX(Screen.getPrimary().getBounds().getMinX());
             xLeft.setEndX(mouseEvent.getScreenX());
             xLeft.setStartY(mouseEvent.getScreenY());
@@ -377,7 +383,6 @@ public class CanvasController implements Initializable {
             yBottom.setEndX(mouseEvent.getScreenX());
             yBottom.setStartY(Screen.getPrimary().getBounds().getMaxY());
             yBottom.setEndY(mouseEvent.getScreenY());
-
         });
         // Make lines visible as we enter the drag
         coordsPicker.setOnMouseDragEntered(mouseDragEvent -> {
@@ -422,7 +427,7 @@ public class CanvasController implements Initializable {
         sizeSlider.valueProperty().addListener((
                 observableValue, oldValue, newValue) -> sizeLabel.textProperty().setValue("Size (" + newValue.intValue() + ")"));
 
-        sectionAInitialPosition.getChildren().addAll(initialPositionLabel, xPosField, xLabel, yPosField, yLabel, coordsPicker);
+        sectionAInitialPosition.getChildren().addAll(initialPositionLabel, coordsPicker, xPosField, xLabel, yPosField, yLabel);
         sectionASizeSlider.getChildren().addAll(sizeLabel, sizeSlider);
 
         newSphereSectionA.getChildren().addAll(sectionAInitialPosition, sectionASizeSlider);
@@ -781,6 +786,7 @@ public class CanvasController implements Initializable {
         globalWallCollisionText.getStyleClass().add("normal-text");
         // Refresh button
         Button refresh = new Button("Refresh");
+        refresh.setId("refresh");
         refresh.setOnAction(actionEvent -> {
             // Update session values
             runningText.setText("Spheres Currently Running: " + sphereList.size());
@@ -796,9 +802,11 @@ public class CanvasController implements Initializable {
             globalSphereCollisionText.setText("Sphere-to-Sphere Collisions Globally: " + (globalSphereCollisionCount + sphereCollisionCount));
             globalWallCollisionText.setText("Sphere-to-Wall Collisions Globally: " + (globalWallCollisionCount + wallCollisionCount));
         });
+        // Refresh stats on selection
+        stats.setOnSelectionChanged(event -> refresh.fire());
 
         Region spacingRegionA = new Region();
-        spacingRegionA.setMinHeight(50.0);
+        spacingRegionA.setMaxHeight(10.0);
 
         statsSectionA.getChildren().add(refresh);
         statsSectionB.getChildren().add(runningText);
