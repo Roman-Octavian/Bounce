@@ -98,6 +98,29 @@ public class NewSphere extends Thread {
         return result;
     }
 
+    /**
+     * Creates a context menu if sphere is right-clicked.
+     * Currently, the menu only allows for deletion, but more functionality could be implemented.
+     * @param sphere Sphere for which the context menu is supposed to be generated.
+     * @param timer AnimationTimer to stop in case of sphere deletion.
+     */
+    private void setContextMenu(Sphere sphere, AnimationTimer timer) {
+        ContextMenu menu = new ContextMenu();
+        MenuItem delete = new MenuItem("Delete");
+        delete.setOnAction(actionEvent -> {
+            Bridge.getCanvasController().getSphereList().remove(sphere);
+            Bridge.getCanvasController().getAnimationList().remove(timer);
+            timer.stop();
+            Bridge.getCanvasController().getCanvas().getChildren().remove(sphere);
+        });
+        menu.getItems().add(delete);
+        sphere.setOnContextMenuRequested(contextMenuEvent -> {
+            if (!menu.isShowing()) {
+                menu.show(Bridge.getCanvasController().getCanvas(), sphere.getLayoutX(), sphere.getLayoutY());
+            }
+        });
+    }
+
     /* This is the speed and direction in pixels per frame at which the sphere moves.
     We're assigning the values from the vector to two variables for clarity down the line */
     int[] vector = getInitialSpeedAndDirection();
@@ -130,6 +153,8 @@ public class NewSphere extends Thread {
             timer.start();
             // Add animation to an animation ArrayList for future manipulation
             Bridge.getCanvasController().getAnimationList().add(timer);
+            // Add context menu on right-click to sphere. Takes timer as argument too because it stops animation in case of deletion
+            setContextMenu(sphere, timer);
             /* Set the sphere as last in the ObservableList of nodes in FX.
             This tries to prevent spheres from visually appearing on top of the control panel.
             Some very rare collisions under the controller have a small visual glitch where they appear for a fraction of a second, only saw it twice */

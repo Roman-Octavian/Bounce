@@ -19,6 +19,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Sphere;
 import javafx.scene.text.Font;
@@ -39,6 +40,7 @@ import java.awt.Desktop;
 
 /**
  * Controller for the canvas view
+ * Bulk of the app, as it contains all the functionality of the control panel
  */
 public class CanvasController implements Initializable {
     // Root pane
@@ -106,7 +108,7 @@ public class CanvasController implements Initializable {
 
     /**
      * Creates a TabPane that will facilitate the functionality of the program to the user
-     * This Pane can be "injected" into the canvas and modified dynamically
+     * This Pane is to be "injected" into the canvas
      * @return the "controlPanel" TabPane
      */
     public TabPane generateControlPanel() {
@@ -194,13 +196,15 @@ public class CanvasController implements Initializable {
         HBox infoSectionA = new HBox();
         customizeBasicHBox(null, Pos.CENTER, 20.0, 600.0, infoSectionA);
 
-        HBox infoSectionB = new HBox();
+        HBox infoSectionB;
+        infoSectionB = new HBox();
         HBox infoSectionC = new HBox();
         HBox infoSectionD = new HBox();
         HBox infoSectionE = new HBox();
         HBox infoSectionF = new HBox();
         HBox infoSectionG = new HBox();
-        customizeBasicHBox("info-container", Pos.CENTER_LEFT, 0.0, 600.0, infoSectionB, infoSectionC, infoSectionD, infoSectionE, infoSectionF, infoSectionG);
+        HBox infoSectionH = new HBox();
+        customizeBasicHBox("info-container", Pos.CENTER_LEFT, 0.0, 600.0, infoSectionB, infoSectionC, infoSectionD, infoSectionE, infoSectionF, infoSectionG ,infoSectionH);
 
         // Text elements for the tab
         Text header = new Text("Bouncing Spheres");
@@ -214,28 +218,35 @@ public class CanvasController implements Initializable {
 
         Text generalInformation = new Text(
                 "Press the \"H\" key to show/hide this panel. " +
-                "Set sphere size, color, position and vector in \"New Sphere\"."
+                "Create customizable spheres in \"New Sphere\"."
         );
         generalInformation.wrappingWidthProperty().set(570);
         // CSS style class
         generalInformation.getStyleClass().add("normal-text");
 
+        Text initialPosition = new Text(
+                "Your display resolution is detected as " + (int) Screen.getPrimary().getVisualBounds().getMaxY() + "x" + (int) Screen.getPrimary().getVisualBounds().getMaxX() + ". " +
+                        "Generating spheres outside of those bounds will force spheres " +
+                        "to the nearest coordinate on screen. " +
+                        "Drag the coordinate picker (+ icon) to pinpoint particular coordinates."
+        );
+        initialPosition.wrappingWidthProperty().set(570);
+        initialPosition.getStyleClass().add("normal-text");
+
         Text vector = new Text(
-                    "The vector is the initial movement pattern. " +
+                    "The sphere \"Initial Vector\" property is the initial movement pattern. " +
                     "Negative numbers designate backward movement, and positive numbers forward movement. " +
                     "Higher values will produce a higher velocity."
         );
         vector.wrappingWidthProperty().set(570);
         vector.getStyleClass().add("normal-text");
 
-        Text initialPosition = new Text(
-                        "Your display resolution is detected as " + (int) Screen.getPrimary().getVisualBounds().getMaxY() + "x" + (int) Screen.getPrimary().getVisualBounds().getMaxX() + ". " +
-                        "Generating spheres outside of those bounds will force spheres " +
-                        "to the nearest coordinate on screen." +
-                        "Drag the coordinates picker (+) to pinpoint a particular coordinate."
+        Text removeSpheres = new Text(
+                "Remove generated spheres all at once with the \"Clear Spheres\" option, " +
+                        "or right-click on a particular sphere to remove it individually."
         );
-        initialPosition.wrappingWidthProperty().set(570);
-        initialPosition.getStyleClass().add("normal-text");
+        removeSpheres.wrappingWidthProperty().set(570);
+        removeSpheres.getStyleClass().add("normal-text");
 
         Text cText = new Text("Not enough? ");
         cText.getStyleClass().add("normal-text");
@@ -256,12 +267,13 @@ public class CanvasController implements Initializable {
         infoSectionB.getChildren().add(description);
         infoSectionC.getChildren().add(howToUse);
         infoSectionD.getChildren().add(generalInformation);
-        infoSectionE.getChildren().add(vector);
-        infoSectionF.getChildren().add(initialPosition);
-        infoSectionG.getChildren().addAll(cText, contact);
+        infoSectionE.getChildren().add(initialPosition);
+        infoSectionF.getChildren().addAll(vector);
+        infoSectionG.getChildren().add(removeSpheres);
+        infoSectionH.getChildren().addAll(cText, contact);
 
         // Add all rows to ScrollPane content
-        infoContainer.getChildren().addAll(infoSectionA, infoSectionB, infoSectionC, infoSectionD, infoSectionE, infoSectionF, infoSectionG);
+        infoContainer.getChildren().addAll(infoSectionA, infoSectionB, infoSectionC, infoSectionD, infoSectionE, infoSectionF, infoSectionG, infoSectionH);
         // Set content of the tab
         info.setContent(scrollPane);
 
@@ -333,31 +345,24 @@ public class CanvasController implements Initializable {
         yLabel.setText("Y");
 
         /* Button that will add cursor coordinates to position fields on mouse drag release
-        Draws lines on all four axis on drag, to display movement nicely */
+        Draws dynamic lines on both axis to display movement nicely */
         Button coordsPicker = new Button("+");
         coordsPicker.setId("coordsPicker");
-        // Line from leftmost side to mouse cursor
+        coordsPicker.textOverrunProperty().set(OverrunStyle.CLIP);
+        // Horizontal line
         Line xLeft = new Line();
         xLeft.getStyleClass().add("line");
-        // Line from rightmost side to mouse cursor
-        Line xRight = new Line();
-        xRight.getStyleClass().add("line");
-        // Line from topmost side to mouse cursor
+        // Vertical line
         Line yTop = new Line();
         yTop.getStyleClass().add("line");
-        // Line from bottommost side to mouse cursor
-        Line yBottom = new Line();
-        yBottom.getStyleClass().add("line");
 
-        // Change cursor to open hand on hover
+        // Change cursor to open hand on button hover
         coordsPicker.setOnMouseEntered(mouseEvent -> canvas.setCursor(Cursor.OPEN_HAND));
         coordsPicker.setOnMouseExited(mouseEvent -> canvas.setCursor(Cursor.DEFAULT));
         // Immediately upon mouse press, add lines to canvas
         coordsPicker.setOnMousePressed(mouseEvent -> {
             canvas.getChildren().add(xLeft);
-            canvas.getChildren().add(xRight);
             canvas.getChildren().add(yTop);
-            canvas.getChildren().add(yBottom);
         });
         // As we are dragging the mouse along, draw the lines from the edges of the screen to the cursor
         coordsPicker.setOnMouseDragged(mouseEvent -> {
@@ -365,38 +370,25 @@ public class CanvasController implements Initializable {
             canvas.setCursor(Cursor.CROSSHAIR);
 
             xLeft.setStartX(Screen.getPrimary().getBounds().getMinX());
-            xLeft.setEndX(mouseEvent.getScreenX());
+            xLeft.setEndX(Screen.getPrimary().getBounds().getMaxX());
             xLeft.setStartY(mouseEvent.getScreenY());
             xLeft.setEndY(mouseEvent.getScreenY());
-
-            xRight.setStartX(Screen.getPrimary().getBounds().getMaxX());
-            xRight.setEndX(mouseEvent.getScreenX());
-            xRight.setStartY(mouseEvent.getScreenY());
-            xRight.setEndY(mouseEvent.getScreenY());
 
             yTop.setStartX(mouseEvent.getScreenX());
             yTop.setEndX(mouseEvent.getScreenX());
             yTop.setStartY(Screen.getPrimary().getBounds().getMinY());
-            yTop.setEndY(mouseEvent.getScreenY());
+            yTop.setEndY(Screen.getPrimary().getBounds().getMaxY());
 
-            yBottom.setStartX(mouseEvent.getScreenX());
-            yBottom.setEndX(mouseEvent.getScreenX());
-            yBottom.setStartY(Screen.getPrimary().getBounds().getMaxY());
-            yBottom.setEndY(mouseEvent.getScreenY());
         });
         // Make lines visible as we enter the drag
         coordsPicker.setOnMouseDragEntered(mouseDragEvent -> {
             xLeft.setVisible(true);
-            xRight.setVisible(true);
             yTop.setVisible(true);
-            yBottom.setVisible(true);
         });
         // Make lines invisible as we leave the drag
         coordsPicker.setOnMouseDragExited(mouseDragEvent -> {
             xLeft.setVisible(false);
-            xRight.setVisible(false);
             yTop.setVisible(false);
-            yBottom.setVisible(false);
         });
         /* When mouse is released, first, get cursor coordinates and add them to the position fields
         second, reset the lines, and remove them from the canvas */
@@ -406,7 +398,7 @@ public class CanvasController implements Initializable {
             yPosField.setText(String.valueOf((int) mouseEvent.getScreenY()));
 
             // Reset lines
-            resetLines(xLeft, xRight, yTop, yBottom);
+            resetLines(xLeft, yTop);
             // Reset cursor
             canvas.setCursor(Cursor.DEFAULT);
         });
@@ -513,6 +505,45 @@ public class CanvasController implements Initializable {
         sectionCButtons.setSpacing(10.0);
         sectionCButtons.setAlignment(Pos.CENTER);
 
+        // Remove all Spheres Button
+        Button clear = new Button();
+        clear.setText("Clear Spheres");
+        clear.setPrefWidth(100.0);
+        clear.setMnemonicParsing(false);
+        clear.setId("clear");
+        clear.setOnAction(actionEvent -> {
+
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "This action cannot be undone. Proceed?", ButtonType.YES, ButtonType.NO);
+            alert.setHeaderText("Warning!");
+            alert.setTitle("Canvas Erasure");
+            Stage alertStage = (Stage) alert.getDialogPane().getScene().getWindow();
+            alertStage.getIcons().add(new Image("file:src/main/resources/assets/icon.png"));
+            alert.showAndWait();
+
+            if (alert.getResult() == ButtonType.YES) {
+                // Iterate through all animations; stop all of them
+                for (AnimationTimer animationTimer : animationList) {
+                    animationTimer.stop();
+                }
+                /* Iterate through Sphere threads; interrupt all of them.
+                stop() is deprecated, but interrupting them should free up resources
+                once the garbage collector gets to it */
+                for (Thread thread : threadList) {
+                    thread.interrupt();
+                }
+                // Remove all instances of "Sphere" nodes from the canvas
+                canvas.getChildren().removeIf(node -> node instanceof Sphere);
+                // Clear all the ArrayLists
+                threadList.clear();
+                animationList.clear();
+                sphereList.clear();
+            }
+        });
+
+        // Region to space out buttons
+        Region spacingRegionA = new Region();
+        spacingRegionA.setPrefWidth(60.0);
+
         // Button to reset the fields to their default values
         Button resetValues = new Button();
         resetValues.setText("Reset Fields");
@@ -528,9 +559,9 @@ public class CanvasController implements Initializable {
             colorPicker.setValue(Color.WHITE);
         });
 
-        // Region to space out both button in this row
-        Region spacingRegion = new Region();
-        spacingRegion.setPrefWidth(120.0);
+        // Region to space out both buttons
+        Region spacingRegionB = new Region();
+        spacingRegionB.setPrefWidth(60.0);
 
         // Button to generate a new sphere in accordance to all fields
         Button generateSphere = new Button();
@@ -548,7 +579,7 @@ public class CanvasController implements Initializable {
             sessionSphereCount += 1;
         });
         // Add both buttons and the spacing region to the row
-        sectionCButtons.getChildren().addAll(resetValues, spacingRegion, generateSphere);
+        sectionCButtons.getChildren().addAll(clear, spacingRegionA, resetValues, spacingRegionB, generateSphere);
         // Add the row the section
         newSphereSectionC.getChildren().add(sectionCButtons);
         /* ----------------------SECTION C---------------------- */
@@ -631,51 +662,39 @@ public class CanvasController implements Initializable {
         /* ----------------------SECTION A---------------------- */
 
         /* ----------------------SECTION B---------------------- */
+
+        ToggleGroup toggleGroupBackground = new ToggleGroup();
+        ToggleButton transparencyOn = new ToggleButton();
+        ToggleButton transparencyOff = new ToggleButton();
+
+        transparencyOn.setText("ON");
+        transparencyOn.setId("transparencyOn");
+        transparencyOn.setPrefWidth(50.0);
+        transparencyOn.setMnemonicParsing(false);
+
+        transparencyOn.setOnAction(actionEvent -> Bridge.getCanvasController().getCanvas().getScene().setFill(null));
+
+        transparencyOff.setText("OFF");
+        transparencyOff.setPrefWidth(50.0);
+        transparencyOff.setMnemonicParsing(false);
+
+        transparencyOff.setOnAction(actionEvent -> Bridge.getCanvasController().getCanvas().getScene().setFill(Paint.valueOf("#fff")));
+
+
+        toggleGroupBackground.getToggles().addAll(transparencyOn, transparencyOff);
+        toggleGroupBackground.selectToggle(transparencyOn);
+
+        // Label for toggle buttons
+        Label transparencyLabel = new Label();
+        transparencyLabel.setText("Transparent Background");
+
         // Region to space nodes out
         Region spacingRegionB = new Region();
         spacingRegionB.setPrefSize(50.0, 55.0);
 
-        // Remove all Spheres Button
-        Button clear = new Button();
-        clear.setText("Clear Spheres");
-        clear.setPrefWidth(100.0);
-        clear.setMnemonicParsing(false);
-        clear.setId("clear");
-        clear.setOnAction(actionEvent -> {
+        HBox.setMargin(transparencyLabel, new Insets(0, 0, 0, 20.0));
 
-            Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "This action cannot be undone. Proceed?", ButtonType.YES, ButtonType.NO);
-            alert.setHeaderText("Warning!");
-            alert.setTitle("Canvas Erasure");
-            Stage alertStage = (Stage) alert.getDialogPane().getScene().getWindow();
-            alertStage.getIcons().add(new Image("file:src/main/resources/assets/icon.png"));
-            alert.showAndWait();
-
-            if (alert.getResult() == ButtonType.YES) {
-                // Iterate through all animations; stop all of them
-                for (AnimationTimer animationTimer : animationList) {
-                    animationTimer.stop();
-                }
-                /* Iterate through Sphere threads; interrupt all of them.
-                stop() is deprecated, but interrupting them should free up resources
-                once the garbage collector gets to it */
-                for (Thread thread : threadList) {
-                    thread.interrupt();
-                }
-                // Remove all instances of "Sphere" nodes from the canvas
-                canvas.getChildren().removeIf(node -> node instanceof Sphere);
-                // Clear all the ArrayLists
-                threadList.clear();
-                animationList.clear();
-                sphereList.clear();
-            }
-        });
-
-        Label removeLabel = new Label();
-        removeLabel.setText("Remove all the spheres");
-
-        HBox.setMargin(removeLabel, new Insets(0, 0, 0, 20.0));
-
-        optionsSectionB.getChildren().addAll(spacingRegionB, clear, removeLabel);
+        optionsSectionB.getChildren().addAll(spacingRegionB, transparencyOn, transparencyOff, transparencyLabel);
         /* ----------------------SECTION B---------------------- */
 
         /* ----------------------SECTION C---------------------- */
@@ -755,7 +774,7 @@ public class CanvasController implements Initializable {
         HBox statsSectionG = new HBox();
         HBox statsSectionH = new HBox();
 
-        customizeBasicHBox(null, Pos.CENTER, 0.0, 600.0, statsSectionA);
+        customizeBasicHBox("refresh-container", Pos.CENTER, 0.0, 600.0, statsSectionA);
         customizeBasicHBox("info-container", Pos.CENTER_LEFT, 0.0, 600.0, statsSectionB, statsSectionC, statsSectionD, statsSectionE, statsSectionF, statsSectionG, statsSectionH);
 
         // Local (session) counters (Not retrieved from DB)

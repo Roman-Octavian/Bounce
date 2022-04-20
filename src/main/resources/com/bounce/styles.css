@@ -40,39 +40,32 @@
 
 #coordsPicker {
     -fx-font-size: 11px;
-    -fx-min-height: 24px;
-    -fx-max-width: 10px;
+}
+
+.refresh-container {
+    -fx-padding: 5px;
 }
 
 #refresh {
     -fx-border-insets: 10px;
     -fx-background-insets: 10px;
-    -fx-pref-width: 100px;
-    -fx-pref-height: 50px;
+    -fx-pref-width: 120px;
+    -fx-min-height: 50px;
     -fx-background-color: transparent;
     -fx-border-style: solid;
-    -fx-border-color: #ff0000;
+    -fx-border-color: #60ff6d;
     -fx-border-width: 1px;
-    -fx-border-radius: 4px;
-    -fx-background-radius: 4px;
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
 }
 
 #refresh:hover {
-    -fx-border-insets: 10px;
-    -fx-background-insets: 10px;
-    -fx-pref-width: 100px;
-    -fx-pref-height: 50px;
-    -fx-background-color: #f17979;
+    -fx-background-color: #7be3ad;
     -fx-text-fill: #ffffff;
-    -fx-border-style: solid;
-    -fx-border-color: #ff0000;
-    -fx-border-width: 1px;
-    -fx-border-radius: 4px;
-    -fx-background-radius: 4px;
 }
 
 #refresh:pressed {
-    -fx-background-color: #ea3e3e;
+    -fx-background-color: #60ff6d;
 }
 
 .line {
