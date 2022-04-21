@@ -18,8 +18,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
+import javafx.scene.paint.*;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Sphere;
 import javafx.scene.text.Font;
@@ -206,6 +205,9 @@ public class CanvasController implements Initializable {
         HBox infoSectionH = new HBox();
         customizeBasicHBox("info-container", Pos.CENTER_LEFT, 0.0, 600.0, infoSectionB, infoSectionC, infoSectionD, infoSectionE, infoSectionF, infoSectionG ,infoSectionH);
 
+        Region spacingRegion = new Region();
+        spacingRegion.setMinHeight(10.0);
+
         // Text elements for the tab
         Text header = new Text("Bouncing Spheres");
         header.setId("header");
@@ -225,7 +227,7 @@ public class CanvasController implements Initializable {
         generalInformation.getStyleClass().add("normal-text");
 
         Text initialPosition = new Text(
-                "Your display resolution is detected as " + (int) Screen.getPrimary().getVisualBounds().getMaxY() + "x" + (int) Screen.getPrimary().getVisualBounds().getMaxX() + ". " +
+                "Your display resolution is detected as " + (int) Screen.getPrimary().getBounds().getMaxY() + "x" + (int) Screen.getPrimary().getBounds().getMaxX() + ". " +
                         "Generating spheres outside of those bounds will force spheres " +
                         "to the nearest coordinate on screen. " +
                         "Drag the coordinate picker (+ icon) to pinpoint particular coordinates."
@@ -273,7 +275,7 @@ public class CanvasController implements Initializable {
         infoSectionH.getChildren().addAll(cText, contact);
 
         // Add all rows to ScrollPane content
-        infoContainer.getChildren().addAll(infoSectionA, infoSectionB, infoSectionC, infoSectionD, infoSectionE, infoSectionF, infoSectionG, infoSectionH);
+        infoContainer.getChildren().addAll(spacingRegion, infoSectionA, infoSectionB, infoSectionC, infoSectionD, infoSectionE, infoSectionF, infoSectionG, infoSectionH);
         // Set content of the tab
         info.setContent(scrollPane);
 
@@ -631,23 +633,80 @@ public class CanvasController implements Initializable {
         customizeBasicHBox(null, Pos.CENTER_LEFT, 55.0, 600.0, optionsSectionB, optionsSectionC);
 
         /* ----------------------SECTION A---------------------- */
+        // Transparency on/off toggle
+        ToggleGroup toggleGroupBackground = new ToggleGroup();
+        ToggleButton transparencyOn = new ToggleButton();
+        ToggleButton transparencyOff = new ToggleButton();
+
+        transparencyOn.setText("ON");
+        transparencyOn.getStyleClass().add("transparency");
+        transparencyOn.setPrefWidth(50.0);
+        transparencyOn.setMnemonicParsing(false);
+        // ON = Transparent
+        transparencyOn.setOnAction(actionEvent -> Bridge.getCanvasController().getCanvas().getScene().setFill(null));
+
+        transparencyOff.setText("OFF");
+        transparencyOff.getStyleClass().add("transparency");
+        transparencyOff.setPrefWidth(50.0);
+        transparencyOff.setMnemonicParsing(false);
+
+        // OFF = Gray gradient background
+        transparencyOff.setOnAction(actionEvent -> {
+            Stop[] stops = new Stop[] {
+                    new Stop(0, Color.valueOf("#bdc3c7")),
+                    new Stop(1, Color.valueOf("#2c3e50"))
+            };
+            LinearGradient gradient = new LinearGradient(0, 1, 0, 0, true, CycleMethod.NO_CYCLE, stops);
+            Bridge.getCanvasController().getCanvas().getScene().setFill(gradient);
+        });
+
+
+        toggleGroupBackground.getToggles().addAll(transparencyOn, transparencyOff);
+        toggleGroupBackground.selectToggle(transparencyOn);
+        // Prevent possibility of no toggle being selected
+        toggleGroupBackground.selectedToggleProperty().addListener((obsVal, oldVal, newVal) -> {
+            if (newVal == null)
+                oldVal.setSelected(true);
+        });
+
+        // Label for toggle buttons
+        Label transparencyLabel = new Label();
+        transparencyLabel.setText("Transparent Background");
+
         // Region to space nodes out
         Region spacingRegionA = new Region();
         spacingRegionA.setPrefSize(50.0, 55.0);
 
+        HBox.setMargin(transparencyLabel, new Insets(0, 0, 0, 20.0));
+
+        optionsSectionA.getChildren().addAll(spacingRegionA, transparencyOn, transparencyOff, transparencyLabel);
+        /* ----------------------SECTION A---------------------- */
+
+        /* ----------------------SECTION B---------------------- */
+        // Region to space nodes out
+        Region spacingRegionB = new Region();
+        spacingRegionB.setPrefSize(50.0, 55.0);
+
         // Toggle buttons to turn sound on or off. Off by default because FX MediaPlayer is very laggy.
-        ToggleGroup toggleGroup = new ToggleGroup();
+        ToggleGroup toggleGroupSound = new ToggleGroup();
         ToggleButton soundOn = new ToggleButton();
         soundOn.setText("ON");
         soundOn.setId("soundOn");
+        soundOn.getStyleClass().add("sound");
         soundOn.setPrefWidth(50.0);
         soundOn.setMnemonicParsing(false);
         ToggleButton soundOff = new ToggleButton();
         soundOff.setText("OFF");
+        soundOff.getStyleClass().add("sound");
         soundOff.setPrefWidth(50.0);
         soundOff.setMnemonicParsing(false);
-        toggleGroup.getToggles().addAll(soundOn, soundOff);
-        toggleGroup.selectToggle(soundOff);
+
+        toggleGroupSound.getToggles().addAll(soundOn, soundOff);
+        toggleGroupSound.selectToggle(soundOff);
+        toggleGroupSound.selectedToggleProperty().addListener((obsVal, oldVal, newVal) -> {
+            if (newVal == null)
+                oldVal.setSelected(true);
+        });
 
         // Label for toggle buttons
         Label soundLabel = new Label();
@@ -658,43 +717,7 @@ public class CanvasController implements Initializable {
 
         HBox.setMargin(soundLabel, new Insets(0, 0, 0, 20.0));
         HBox.setMargin(soundWarning, new Insets(0, 0, 0, 20.0));
-        optionsSectionA.getChildren().addAll(spacingRegionA, soundOn, soundOff, soundLabel, soundWarning);
-        /* ----------------------SECTION A---------------------- */
-
-        /* ----------------------SECTION B---------------------- */
-
-        ToggleGroup toggleGroupBackground = new ToggleGroup();
-        ToggleButton transparencyOn = new ToggleButton();
-        ToggleButton transparencyOff = new ToggleButton();
-
-        transparencyOn.setText("ON");
-        transparencyOn.setId("transparencyOn");
-        transparencyOn.setPrefWidth(50.0);
-        transparencyOn.setMnemonicParsing(false);
-
-        transparencyOn.setOnAction(actionEvent -> Bridge.getCanvasController().getCanvas().getScene().setFill(null));
-
-        transparencyOff.setText("OFF");
-        transparencyOff.setPrefWidth(50.0);
-        transparencyOff.setMnemonicParsing(false);
-
-        transparencyOff.setOnAction(actionEvent -> Bridge.getCanvasController().getCanvas().getScene().setFill(Paint.valueOf("#fff")));
-
-
-        toggleGroupBackground.getToggles().addAll(transparencyOn, transparencyOff);
-        toggleGroupBackground.selectToggle(transparencyOn);
-
-        // Label for toggle buttons
-        Label transparencyLabel = new Label();
-        transparencyLabel.setText("Transparent Background");
-
-        // Region to space nodes out
-        Region spacingRegionB = new Region();
-        spacingRegionB.setPrefSize(50.0, 55.0);
-
-        HBox.setMargin(transparencyLabel, new Insets(0, 0, 0, 20.0));
-
-        optionsSectionB.getChildren().addAll(spacingRegionB, transparencyOn, transparencyOff, transparencyLabel);
+        optionsSectionB.getChildren().addAll(spacingRegionB, soundOn, soundOff, soundLabel, soundWarning);
         /* ----------------------SECTION B---------------------- */
 
         /* ----------------------SECTION C---------------------- */
@@ -803,6 +826,10 @@ public class CanvasController implements Initializable {
 
         Text globalWallCollisionText = new Text("Sphere-to-Wall Collisions Globally: " + globalWallCollisionCount);
         globalWallCollisionText.getStyleClass().add("normal-text");
+
+        Region spacingRegionA = new Region();
+        spacingRegionA.setMinHeight(5.0);
+
         // Refresh button
         Button refresh = new Button("Refresh");
         refresh.setId("refresh");
@@ -824,8 +851,8 @@ public class CanvasController implements Initializable {
         // Refresh stats on selection
         stats.setOnSelectionChanged(event -> refresh.fire());
 
-        Region spacingRegionA = new Region();
-        spacingRegionA.setMaxHeight(10.0);
+        Region spacingRegionB = new Region();
+        spacingRegionB.setMaxHeight(10.0);
 
         statsSectionA.getChildren().add(refresh);
         statsSectionB.getChildren().add(runningText);
@@ -838,7 +865,7 @@ public class CanvasController implements Initializable {
 
         sessionDiv.getChildren().addAll(statsSectionB, statsSectionC, statsSectionD, statsSectionE);
         globalDiv.getChildren().addAll(statsSectionF, statsSectionG, statsSectionH);
-        statsContainer.getChildren().addAll(statsSectionA, sessionDiv, spacingRegionA, globalDiv);
+        statsContainer.getChildren().addAll(spacingRegionA, statsSectionA, sessionDiv, spacingRegionB, globalDiv);
         stats.setContent(statsContent);
 
         return stats;

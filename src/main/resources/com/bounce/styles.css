@@ -1,3 +1,166 @@
+.tab-pane .tab-header-background {
+    -fx-opacity: 0;
+}
+
+.tab-pane {
+    -fx-tab-min-width: 125px;
+}
+
+.tab {
+    -fx-background-insets: 0 1 0 1,0,0;
+    -fx-background-radius: 8px;
+    -fx-border-radius: 8px;
+}
+
+.tab-pane .tab {
+    -fx-background-color: #e6e6e6;
+}
+
+.tab-pane:focused > .tab-header-area > .headers-region > .tab:selected .focus-indicator {
+    -fx-border-color: NONE;
+}
+
+.tab-pane .tab:selected {
+    -fx-background-color: #fc5b5b;
+}
+
+.tab .tab-label {
+    -fx-alignment: CENTER;
+    -fx-text-fill: #828282;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+}
+
+.tab:selected .tab-label {
+    -fx-alignment: CENTER;
+    -fx-text-fill: #ffffff;
+}
+
+#control-panel {
+    -fx-background-color: #fff;
+    -fx-border-color: #b3b3b3;
+    -fx-border-radius: 16px;
+    -fx-background-radius: 16px;
+    -fx-border-style: solid;
+}
+
+.info-container {
+    -fx-padding: 10px;
+}
+
+#header {
+    -fx-font-family: Monospaced;
+    -fx-font-size: 30px;
+    -fx-fill: #fc5b5b;
+}
+
+#description {
+    -fx-font-size: 16px;
+}
+
+#howToUse {
+    -fx-font-family: monospace;
+    -fx-font-size: 20px;
+    -fx-underline: true;
+}
+
+.normal-text {
+    -fx-font-size: 16px;
+}
+
+#coordsPicker {
+    -fx-font-size: 11px;
+}
+
+.line {
+    -fx-stroke: red;
+    -fx-stroke-width: 2px;
+}
+
+#generate {
+    -fx-background-color: transparent;
+    -fx-border-style: solid;
+    -fx-border-color: #60ff6d;
+    -fx-border-width: 1px;
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+    -fx-pref-width: 125px;
+}
+#generate:hover {
+    -fx-background-color: #60ff6d;
+    -fx-text-fill: #fff;
+}
+
+#generate:pressed {
+    -fx-background-color: #60ff6d;
+    -fx-text-fill: #fff;
+}
+
+#reset {
+    -fx-background-color: transparent;
+    -fx-border-style: solid;
+    -fx-border-color: #f7a531;
+    -fx-border-width: 1px;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+    -fx-pref-width: 125px;
+}
+
+#reset:hover {
+    -fx-background-color: #f7a531;
+    -fx-text-fill: #fff;
+}
+
+#reset:pressed {
+    -fx-background-color: #f19c05;
+    -fx-text-fill: #fff;
+}
+
+#clear {
+    -fx-background-color: transparent;
+    -fx-border-style: solid;
+    -fx-border-color: #fc5b5b;
+    -fx-border-width: 1px;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+    -fx-pref-width: 125px;
+}
+#clear:hover {
+    -fx-background-color: #fc5b5b;
+    -fx-text-fill: #fff;
+}
+
+#clear:pressed {
+    -fx-background-color: #fd1111;
+    -fx-text-fill: #fff;
+}
+
+.refresh-container {
+    -fx-padding: 5px;
+}
+
+#refresh {
+    -fx-border-insets: 10px;
+    -fx-background-insets: 10px;
+    -fx-pref-width: 120px;
+    -fx-min-height: 50px;
+    -fx-background-color: transparent;
+    -fx-border-style: solid;
+    -fx-border-color: #60ff6d;
+    -fx-border-width: 1px;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+}
+
+#refresh:hover {
+    -fx-background-color: #60ff6d;
+    -fx-text-fill: #ffffff;
+}
+
+#refresh:pressed {
+    -fx-background-color: #00ff16;
+}
+
 #session {
     -fx-background-color: #8be78b;
     -fx-padding: 20px;
@@ -24,125 +187,63 @@
     -fx-max-width: 590px;
 }
 
-#header {
-    -fx-font-family: Monospaced;
-    -fx-font-size: 30px;
+.sound {
+    -fx-border-insets: 1px;
+    -fx-background-insets: 1px;
+    -fx-background-color: transparent;
+    -fx-border-color: #f7a531;
+    -fx-border-style: solid;
+    -fx-border-width: 1px;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
 }
 
-#description {
-    -fx-font-size: 16px;
+.sound:hover {
+    -fx-background-color: #f7a531;
+    -fx-text-fill: #fff;
 }
 
-#howToUse {
-    -fx-font-family: monospace;
-    -fx-font-size: 20px;
+.sound:selected {
+    -fx-background-color: #ff9d00;
+    -fx-text-fill: #fff;
 }
 
-#coordsPicker {
-    -fx-font-size: 11px;
+.transparency {
+    -fx-border-insets: 1px;
+    -fx-background-insets: 1px;
+    -fx-background-color: transparent;
+    -fx-border-color: #60ff6d;
+    -fx-border-style: solid;
+    -fx-border-width: 1px;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
 }
 
-.refresh-container {
-    -fx-padding: 5px;
+.transparency:hover {
+    -fx-background-color: #60ff6d;
+    -fx-text-fill: #fff;
 }
 
-#refresh {
-    -fx-border-insets: 10px;
-    -fx-background-insets: 10px;
-    -fx-pref-width: 120px;
-    -fx-min-height: 50px;
+.transparency:selected {
+    -fx-background-color: #00ff17;
+    -fx-text-fill: #fff;
+}
+
+#exit {
     -fx-background-color: transparent;
     -fx-border-style: solid;
-    -fx-border-color: #60ff6d;
     -fx-border-width: 1px;
-    -fx-border-radius: 6px;
-    -fx-background-radius: 6px;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+    -fx-border-color: #fc5b5b;
 }
 
-#refresh:hover {
-    -fx-background-color: #7be3ad;
-    -fx-text-fill: #ffffff;
-}
-
-#refresh:pressed {
-    -fx-background-color: #60ff6d;
-}
-
-.line {
-    -fx-stroke: red;
-    -fx-stroke-width: 2px;
-}
-
-.info-container {
-    -fx-padding: 10px;
-}
-
-.normal-text {
-    -fx-font-size: 16px;
-}
-
-.tab-pane .tab-header-area .tab-header-background {
-    -fx-opacity: 0;
-}
-
-.tab-pane
-{
-    -fx-tab-min-width:90px;
-}
-
-.tab{
-    -fx-background-insets: 0 1 0 1,0,0;
-}
-.tab-pane .tab
-{
-    -fx-background-color: #e6e6e6;
-
-}
-
-.tab-pane .tab:selected
-{
-    -fx-background-color: #3c3c3c;
-}
-
-.tab .tab-label {
-    -fx-alignment: CENTER;
-    -fx-text-fill: #828282;
-    -fx-font-size: 12px;
-    -fx-font-weight: bold;
-}
-
-.tab:selected .tab-label {
-    -fx-alignment: CENTER;
-    -fx-text-fill: #96b946;
-}
-
-#control-panel {
-    -fx-background-color: #fff;
-    -fx-border-color: #000;
-    -fx-border-radius: 16px;
-    -fx-background-radius: 16px;
-    -fx-border-style: solid;
-}
-
-#generate {
-    -fx-background-color: #92FE9D;
-    -fx-border-style: solid;
-    -fx-border-width: 1px;
-}
-#generate:hover {
-    -fx-background-color: #60ff6d;
-    -fx-scale-x: 110%;
-    -fx-scale-y: 110%;
-}
-
-#reset {
+#exit:hover {
     -fx-background-color: #fc5b5b;
-    -fx-text-fill: white;
-    -fx-border-style: solid;
-    -fx-border-width: 1px;
+    -fx-text-fill: #fff;
 }
-#reset:hover {
-    -fx-background-color: #fd1111;
-    -fx-scale-x: 110%;
-    -fx-scale-y: 110%;
+
+#exit:pressed {
+    -fx-background-color: #fc3434;
+    -fx-text-fill: #fff;
 }

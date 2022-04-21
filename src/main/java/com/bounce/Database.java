@@ -2,6 +2,16 @@ package com.bounce;
 
 import java.sql.*;
 
+/**
+ * Responsible for the back-end connection.
+ * The remote Heroku database is only truly queried twice:
+ * 1. On application start-up to retrieve current stats
+ * 2. On application termination via "Exit" button
+ * This is so to prevent surpassing the limit of 3600 questions per hour imposed by ClearDB
+ * Moreover, it takes two seconds to query the database, which freezes everything if ran on the main thread
+ * That forces creating new threads for each database query, otherwise it would make the app stutter
+ * Previous attempts at updating the database more frequently resulted in temporary unresponsiveness
+ */
 public class Database {
     private static Connection connection = null;
     private static PreparedStatement preparedStatement = null;
