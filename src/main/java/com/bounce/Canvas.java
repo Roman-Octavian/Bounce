@@ -13,7 +13,9 @@ import java.io.IOException;
 import java.util.Objects;
 
 /**
- * Entry point of the application
+ * Creates the scene and stage.
+ * Main method here is called by the Launcher.
+ * This cannot be the actual entry point outside an IDE because the JAR artifact would not work
  */
 public class Canvas extends Application {
 
@@ -39,7 +41,7 @@ public class Canvas extends Application {
         stage.initStyle(StageStyle.TRANSPARENT);
         // Set title & icon
         stage.setTitle("Bouncing Spheres");
-        Image icon = new Image("file:src/main/resources/assets/icon.png");
+        Image icon = new Image("file:src/main/resources/assets/icon.ico");
         stage.getIcons().add(icon);
         // Show the scene
         stage.setScene(canvas);

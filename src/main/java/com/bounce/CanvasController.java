@@ -519,7 +519,7 @@ public class CanvasController implements Initializable {
             alert.setHeaderText("Warning!");
             alert.setTitle("Canvas Erasure");
             Stage alertStage = (Stage) alert.getDialogPane().getScene().getWindow();
-            alertStage.getIcons().add(new Image("file:src/main/resources/assets/icon.png"));
+            alertStage.getIcons().add(new Image("file:src/main/resources/assets/icon.ico"));
             alert.showAndWait();
 
             if (alert.getResult() == ButtonType.YES) {
@@ -736,7 +736,7 @@ public class CanvasController implements Initializable {
             alert.setHeaderText("Confirmation:");
             alert.setTitle("Bouncing Spheres");
             Stage alertStage = (Stage) alert.getDialogPane().getScene().getWindow();
-            alertStage.getIcons().add(new Image("file:src/main/resources/assets/icon.png"));
+            alertStage.getIcons().add(new Image("file:src/main/resources/assets/icon.ico"));
             alert.showAndWait();
 
             if (alert.getResult() == ButtonType.YES) {

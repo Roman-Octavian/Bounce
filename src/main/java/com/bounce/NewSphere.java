@@ -5,10 +5,13 @@ import javafx.application.Platform;
 import javafx.scene.control.*;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Sphere;
-import javafx.scene.media.Media;
-import javafx.scene.media.MediaPlayer;
-import java.io.File;
 
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import java.io.BufferedInputStream;
+
+import java.io.InputStream;
 import java.util.Objects;
 import java.util.Random;
 
@@ -34,7 +37,7 @@ public class NewSphere extends Thread {
     // Retrieving the Y vector value from the Control Panel with its ID, to set the vector of the Sphere
     @SuppressWarnings("unchecked")
     Spinner<String> vectorY = (Spinner<String>) Bridge.getCanvasController().getCanvas().getScene().lookup("#initialVectorY");
-    // Retrieving the initialY TextField from the Control Panel with its ID, to set the initial position Y of the Sphere
+    // Retrieving whether the soundOn toggleButton is on or off in the Control Panel, to toggle collision sounds
     ToggleButton soundOn = (ToggleButton) Bridge.getCanvasController().getCanvas().getScene().lookup("#soundOn");
 
 
@@ -56,13 +59,13 @@ public class NewSphere extends Thread {
         int[] result = new int[2];
 
         if (Objects.equals(vectorX.getValue(), "Random")) {
-            x = random.nextInt(1,10);
+            x = random.nextInt(-10,10);
         } else {
             x = Integer.parseInt(vectorX.getValue());
         }
 
         if (Objects.equals(vectorY.getValue(), "Random")) {
-            y = random.nextInt(1,10);
+            y = random.nextInt(-10,10);
         } else {
             y = Integer.parseInt(vectorY.getValue());
         }
@@ -191,13 +194,13 @@ public class NewSphere extends Thread {
             if (leftEdge || rightEdge) {
                 directionX *= -1;
                 // Play sound on impact. Off by default
-                playSound("src/main/resources/assets/wall-collision.wav");
+                playSound("/assets/wall-collision.wav");
                 // Update (local) session sphere-to-wall collision count
                 Bridge.getCanvasController().setWallCollisionCount(Bridge.getCanvasController().getWallCollisionCount() + 1);
             }
             if (upperEdge || lowerEdge) {
                 directionY *= -1;
-                playSound("src/main/resources/assets/wall-collision.wav");
+                playSound("/assets/wall-collision.wav");
                 Bridge.getCanvasController().setWallCollisionCount(Bridge.getCanvasController().getWallCollisionCount() + 1);
             }
 
@@ -251,7 +254,7 @@ public class NewSphere extends Thread {
                         directionY *= -1;
 
                         // Play sound on impact. Off by default
-                        playSound("src/main/resources/assets/sphere-collision.wav");
+                        playSound("/assets/sphere-collision.wav");
                         // Update session sphere-on-sphere collision count
                         Bridge.getCanvasController().setSphereCollisionCount(Bridge.getCanvasController().getSphereCollisionCount() + 1);
                     }
@@ -326,7 +329,8 @@ public class NewSphere extends Thread {
 
         /**
          * Plays an audio if the sound toggle is on.
-         * Used to make sound on sphere collisions with walls and other spheres
+         * Used to make sound on sphere collisions with walls and other spheres.
+         * About 5 hours wasted making this work in a JAR. Admittedly, I was debugging the wrong, old artifact for 4 of those hours.
          * @param url path to the sound file that is to be played
          */
         private void playSound(String url) {
@@ -334,9 +338,16 @@ public class NewSphere extends Thread {
                 // Sound for wall collision. Off by default, since the FX MediaPlayer is very bloated and drastically drops FPS
                 // Weird, but after wrapping everything in "if" statements the performance has vastly improved (???)
                 // Maybe I was loading the audios every frame * the number of balls by mistake
-                Media sound = new Media(new File(url).toURI().toString());
-                MediaPlayer mediaPlayer = new MediaPlayer(sound);
-                mediaPlayer.play();
+                try {
+                    InputStream stream = getClass().getResourceAsStream(url);
+                    InputStream bufferedIn = new BufferedInputStream(Objects.requireNonNull(stream));
+                    AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(bufferedIn);
+                    Clip clip = AudioSystem.getClip();
+                    clip.open(audioInputStream);
+                    clip.start();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
