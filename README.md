@@ -42,7 +42,7 @@ In some cases, installing the JDK is also needed to make JavaFX work:
 <a href="https://www.oracle.com/java/technologies/downloads/#jdk17-windows">JDK Download Page</a>
 
 Lastly, a JAR artifact is also available. Java and possibly the JavaFX SDK is required to run it.
-Make sure to have the location of the SDK readily available
+Make sure to have the location of the SDK readily available.
 Once these tools have been installed, using any terminal, navigate to wherever the JAR is located on your system and run this command:
 
 `java --module-path <path-to-your-sdk>/JavaFX/javafx-sdk-<sdk-version>/lib/ --add-modules javafx.controls,javafx.fxml,javafx.graphics,javafx.base,javafx.media -jar Bounce.jar`
@@ -76,7 +76,7 @@ Has a link that redirects to my GitHub profile for support.
 
 ### 2. "New Sphere"
 
-This table deals with Sphere generation. It has four main fields:
+This tab deals with Sphere generation. It has four main fields:
 
 - "Position": Where the Sphere will be generated. Values outside the screen bounds will force the sphere to the nearest valid position. 
 The button marked with a "+" symbol right next to the "Position" Label is the Coordinate Picker. It can be dragged along the display to select a specific location aided by a cross-hair view. 
