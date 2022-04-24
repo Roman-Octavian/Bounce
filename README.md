@@ -1,8 +1,8 @@
 # Bouncing Spheres
 
+https://user-images.githubusercontent.com/74454371/165000805-e67bf423-39a6-4b02-a4bf-7d2efc2e41ee.mp4
+
 ---
-
-
 
 ## Project Description
 This is a full-stack, native, multi-threaded program which attempts to simulate simple circle physics.
@@ -95,7 +95,7 @@ Negative numbers signify backward movement, and positive numbers forward movemen
 For example, an initial vector of "X: 5 , Y: 5" will generate a sphere that will move diagonally towards the bottom-right of the screen at 5 pixels per frame:
 
 
-
+https://user-images.githubusercontent.com/74454371/165000849-6a151762-9e14-4c7b-a6c1-2ac0d3fedde0.mp4
 
 
 - "Colour": A colour picker that allows us to determine the colour of the newly generated sphere.
