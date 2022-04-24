@@ -142,6 +142,8 @@ Lastly, "Options" contains three options:
 
 ![Info Tab](src/main/resources/assets/README/options.png)
 
+---
+
 ## How to Improve
 
 Improvements could be made to the application:
