@@ -22,7 +22,7 @@ public class Database {
      */
     public static Connection getConnection() {
         try {
-            connection = DriverManager.getConnection("jdbc:mysql://eu-cdbr-west-02.cleardb.net:3306/heroku_45b5e60a7be0064?reconnect=true","b6903f704a649d", "817c7daf");
+            connection = DriverManager.getConnection("jdbc:mysql://eu-cdbr-west-02.cleardb.net:3306/heroku_45b5e60a7be0064?reconnect=true",System.getProperty("USER"), System.getProperty("PASS"));
             return connection;
         } catch (SQLException e) {
             e.printStackTrace();

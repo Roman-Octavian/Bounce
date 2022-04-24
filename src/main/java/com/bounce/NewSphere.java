@@ -16,9 +16,9 @@ import java.util.Objects;
 import java.util.Random;
 
 /**
- * Class responsible for generating new spheres
- * Should not be named plain "Sphere" to avoid ambiguity with javafx.scene.shape.Sphere
- * Each sphere runs on its own thread
+ * Class responsible for generating new spheres.
+ * Should not be named plain "Sphere" to avoid ambiguity with javafx.scene.shape.Sphere .
+ * Each sphere runs on its own thread.
  * Includes the logic behind the rudimentary physics simulation.
  */
 public class NewSphere extends Thread {
@@ -249,7 +249,7 @@ public class NewSphere extends Thread {
                             otherSphere.setLayoutX(otherSphere.getLayoutX() + (overlap * (sphere.getLayoutX() - otherSphere.getLayoutX()) / distance));
                             otherSphere.setLayoutY(otherSphere.getLayoutY() + (overlap * (sphere.getLayoutY() - otherSphere.getLayoutY()) / distance));
                         }
-                        // Finally, invert the direction vector to create a bounce effect
+                        // Finally, invert the direction vector to create a (bad) bounce effect
                         directionX *= -1;
                         directionY *= -1;
 
@@ -335,9 +335,8 @@ public class NewSphere extends Thread {
          */
         private void playSound(String url) {
             if (soundOn.isSelected()) {
-                // Sound for wall collision. Off by default, since the FX MediaPlayer is very bloated and drastically drops FPS
-                // Weird, but after wrapping everything in "if" statements the performance has vastly improved (???)
-                // Maybe I was loading the audios every frame * the number of balls by mistake
+                // Sound for wall collision. Off by default since it can get very loud
+                // Works in executables
                 try {
                     InputStream stream = getClass().getResourceAsStream(url);
                     InputStream bufferedIn = new BufferedInputStream(Objects.requireNonNull(stream));

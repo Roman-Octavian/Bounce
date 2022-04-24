@@ -41,7 +41,7 @@ public class Canvas extends Application {
         stage.initStyle(StageStyle.TRANSPARENT);
         // Set title & icon
         stage.setTitle("Bouncing Spheres");
-        Image icon = new Image("file:src/main/resources/assets/icon.ico");
+        Image icon = new Image(Objects.requireNonNull(getClass().getResource("/assets/icon.png")).toExternalForm());
         stage.getIcons().add(icon);
         // Show the scene
         stage.setScene(canvas);

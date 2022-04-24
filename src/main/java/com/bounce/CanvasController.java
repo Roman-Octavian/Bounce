@@ -34,6 +34,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.sql.Connection;
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.ResourceBundle;
 import java.awt.Desktop;
 
@@ -519,7 +520,7 @@ public class CanvasController implements Initializable {
             alert.setHeaderText("Warning!");
             alert.setTitle("Canvas Erasure");
             Stage alertStage = (Stage) alert.getDialogPane().getScene().getWindow();
-            alertStage.getIcons().add(new Image("file:src/main/resources/assets/icon.ico"));
+            alertStage.getIcons().add(new Image(Objects.requireNonNull(getClass().getResource("/assets/icon.png")).toExternalForm()));
             alert.showAndWait();
 
             if (alert.getResult() == ButtonType.YES) {
@@ -736,7 +737,7 @@ public class CanvasController implements Initializable {
             alert.setHeaderText("Confirmation:");
             alert.setTitle("Bouncing Spheres");
             Stage alertStage = (Stage) alert.getDialogPane().getScene().getWindow();
-            alertStage.getIcons().add(new Image("file:src/main/resources/assets/icon.ico"));
+            alertStage.getIcons().add(new Image(Objects.requireNonNull(getClass().getResource("/assets/icon.png")).toExternalForm()));
             alert.showAndWait();
 
             if (alert.getResult() == ButtonType.YES) {
