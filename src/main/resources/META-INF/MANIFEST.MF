@@ -1,8 +1,3 @@
 Manifest-Version: 1.0
 Main-Class: com.bounce.Launcher
-Class-Path: javafx-media-19-ea+4-win.jar javafx-media-19-ea+4.jar javafx
- -base-17-ea+11-win.jar javafx-graphics-17-ea+11-win.jar javafx-fxml-17-
- ea+11-win.jar javafx-controls-17-ea+11-win.jar javafx-fxml-17-ea+11.jar
-  mysql-connector-java-8.0.28.jar javafx-graphics-17-ea+11.jar javafx-ba
- se-17-ea+11.jar javafx-controls-17-ea+11.jar
 
