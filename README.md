@@ -89,9 +89,7 @@ When the selection is released, the coordinates are automatically set in their c
 
 - "Initial Vector": Denotes the initial movement pattern of the sphere on both the X and Y axis. 
 Negative numbers signify backward movement, and positive numbers forward movement. Higher numbers in both directions produce a higher speed.
-
-
-- The options go from -10 to 10, and a "Random" option which randomizes the values is also present.
+The options go from -10 to 10, and a "Random" option which randomizes the values is also present.
 For example, an initial vector of "X: 5 , Y: 5" will generate a sphere that will move diagonally towards the bottom-right of the screen at 5 pixels per frame:
 
 
