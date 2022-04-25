@@ -41,12 +41,15 @@ In some cases, installing the JDK is also needed to make JavaFX work:
 
 <a href="https://www.oracle.com/java/technologies/downloads/#jdk17-windows">JDK Download Page</a>
 
-Lastly, a JAR artifact is also available. Java and possibly the JavaFX SDK or JDK is required to run it.
+Lastly, a JAR artifact is also available. Java and possibly the JavaFX SDK is required to run it.
+
+<a href="https://github.com/Roman-Octavian/Bounce/blob/main/bin/Bounce.jar?raw=true">JAR Download</a>
+
+<a href="https://gluonhq.com/products/javafx/">JavaFX SDK Download Page</a>
+
 Once these tools have been installed, using any terminal, navigate to wherever the JAR is located on your system and run this command:
 
 `java -cp 'Bounce.jar' com.bounce.Launcher`
-
-<a href="https://github.com/Roman-Octavian/Bounce/blob/main/bin/Bounce.jar?raw=true">JAR Download</a>
 
 ---
 
