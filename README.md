@@ -41,7 +41,7 @@ In some cases, installing the JDK is also needed to make JavaFX work:
 
 <a href="https://www.oracle.com/java/technologies/downloads/" target="_blank">JDK Download Page</a>
 
-Lastly, a JAR artifact is also available. Java and possibly the JavaFX SDK is required to run it.
+Lastly, a JAR artifact is also available for macOS or Linux. Java and possibly the JavaFX SDK or JDK is required to run it.
 
 <a href="https://github.com/Roman-Octavian/Bounce/blob/main/bin/Bounce.jar?raw=true">JAR Download</a>
 
@@ -49,7 +49,22 @@ Lastly, a JAR artifact is also available. Java and possibly the JavaFX SDK is re
 
 Once these tools have been installed, using any terminal, navigate to wherever the JAR is located on your system and run this command:
 
-`java -cp 'Bounce.jar' com.bounce.Launcher`
+`java -DUSER=b6903f704a649d -DPASS=ce0454e6f8a92b8 -cp 'Bounce.jar' com.bounce.Launcher`
+
+If the app does not load properly (spheres won't show up, etc.) try this instead:
+
+`java -DUSER=b6903f704a649d -DPASS=ce0454e6f8a92b8 -Dprism.forceGPU=true -cp 'Bounce.jar' com.bounce.Launcher`
+
+Here's an example of running the app successfully on a VM Manjaro Linux fresh installation:
+
+1. Run `sudo pacman -S jre-openjdk` in default terminal
+2. Download the JAR and place it on the Desktop
+3. Do `cd Desktop`
+4. Do `java -DUSER=b6903f704a649d -DPASS=ce0454e6f8a92b8 -Dprism.forceGPU=true -cp 'Bounce.jar' com.bounce.Launcher`
+
+Program appears to run fine except for some text misplacement. Funnily enough, the same procedure on plain Arch does not render the app properly.
+
+![Manjaro Result](src/main/resources/assets/README/manjaro.png)
 
 ---
 
@@ -147,6 +162,6 @@ Lastly, "Options" contains three options:
 Improvements could be made to the application:
 - Add anti-aliasing; tried to but it glitched out
 - Improve sphere-to-sphere collision physics
+- Improve physics in general (add friction toggle, rotation, etc.)
 - Create executables for macOS and Linux
 - Make sound less irritating with high sphere amounts
-
