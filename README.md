@@ -6,8 +6,8 @@ https://user-images.githubusercontent.com/74454371/165000805-e67bf423-39a6-4b02-
 
 ## Project Description
 This is a full-stack, native, multi-threaded program which attempts to simulate simple circle physics.
-The application provides granular control over the simulation by means of an intuitive user interface. The goals of the
-project can be ascertained in the [project requirements](meta/Mandatory%20II.pdf).
+The application provides granular control over the simulation by means of an intuitive user interface. The goals of this first part
+of the project can be ascertained in the [project requirements](meta/Mandatory%20II.pdf); For the second part (a landing site) click [here](https://github.com/Roman-Octavian/Bounce-Site).
 
 Bouncing Spheres can be used to play around with spheres. The user has great control over the emulation, and can therefore
 choose to use it to their taste; Some may try to generate as many spheres as possible to strain their computer,
@@ -164,4 +164,5 @@ Improvements could be made to the application:
 - Improve sphere-to-sphere collision physics
 - Improve physics in general (add friction toggle, rotation, etc.)
 - Create executables for macOS and Linux
+- Make executables reliable (it's a hit or miss whether they work unfortunately)
 - Make sound less irritating with high sphere amounts
